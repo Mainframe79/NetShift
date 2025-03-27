@@ -1,0 +1,255 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Fragment>
+        <DirectoryRef Id="APPFOLDER">
+            <Directory Id="dir6o4UxCzwU2WK8aLCJSxaoPXNiLI" Name="cs" />
+            <Directory Id="dirPjvSbkkzRrm8aPMJEkwf0_dYM7U" Name="de" />
+            <Directory Id="dirzTV0gfhPV_M1aSkMwLd4Bi9PWfg" Name="es" />
+            <Directory Id="dirlmjSCwQdX8B5IgKRm_Xrtkb_VKc" Name="fr" />
+            <Directory Id="dir5soRUEatG8W1JoabOYGTHTFzpZA" Name="it" />
+            <Directory Id="dir_Y2e23s0OZ_s45NGPHXmPOsb_KM" Name="ja" />
+            <Directory Id="diriLHMHcbt0Cfh1XyMa2UrK8kFseA" Name="ko" />
+            <Directory Id="dir1LcUPLUrbdVn4sB6uAequzni_4w" Name="pl" />
+            <Directory Id="dir0d9jJjjXjeZwEpKlLdB2u81kSLM" Name="pt-BR" />
+            <Directory Id="diriAnJjLwdU7eXLe0qEmcB9g3cJds" Name="ru" />
+            <Directory Id="dirwu_5BPzwUYzZgeIj.J3qQwcLUhA" Name="runtimes" />
+            <Directory Id="dirwv89eEk_OBSzXfArgsWdWmWQYiE" Name="tr" />
+            <Directory Id="dirILM9.UzBkRFKsO.XZoB68_LIsM8" Name="zh-Hans" />
+            <Directory Id="diruzJM9q28Nm0a1EPJ7Y6SxU5FHdo" Name="zh-Hant" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="NetShiftFiles">
+            <Component Id="cmpsTyx46Fs8psvLCahyseF2hzkHlM" Directory="APPFOLDER" Guid="{F2C76420-D885-4B09-9B28-5FB25888AAF8}">
+                <File Id="filKbn3aEPOzbCJ3QVV14rwFf3d4Zg" KeyPath="yes" Source="SourceDir\MaterialDesignColors.dll" />
+            </Component>
+            <Component Id="cmp2mcDOGlUy.3Z6cBvLXy_0mry7pc" Directory="APPFOLDER" Guid="{7E5C5F8A-824A-46E5-9DF2-E361EE2A8A6B}">
+                <File Id="filk66xpwZ47X3XPwAWf.s5lRs0At0" KeyPath="yes" Source="SourceDir\MaterialDesignThemes.Wpf.dll" />
+            </Component>
+            <Component Id="cmpvrRPbdTt.RYrUiek7PiF8VuXEQ4" Directory="APPFOLDER" Guid="{DD25F450-A912-45F9-808A-B6624D6C6268}">
+                <File Id="filoBlTnsy9GA8AiGDKjYNKXShZSm0" KeyPath="yes" Source="SourceDir\Microsoft.Extensions.ObjectPool.dll" />
+            </Component>
+            <Component Id="cmp7p.4R8S5tzyQRHiUgPZMrLJaFfk" Directory="APPFOLDER" Guid="{679B781B-AECF-4242-95D4-0FD1D3705B2F}">
+                <File Id="filXQjgBFWicT1olDuFD62kQAL03hE" KeyPath="yes" Source="SourceDir\Microsoft.Windows.SDK.NET.dll" />
+            </Component>
+            <Component Id="cmpXo5eNJ33mG_OZ3ZSQjZmIqHp0tk" Directory="APPFOLDER" Guid="{2CF3C569-09D5-406E-B265-30A299295C71}">
+                <File Id="filc0dXprqrJeMb_gjsp4YEQMSMFec" KeyPath="yes" Source="SourceDir\Microsoft.Xaml.Behaviors.dll" />
+            </Component>
+            <Component Id="cmpvfbabse9Aio.f3P0ljryxyitXwQ" Directory="APPFOLDER" Guid="{6860DD44-CAB1-4714-B45A-07DF68F1419E}">
+                <File Id="filYqNEtt_VORKWTWsYRPpDktix1V0" KeyPath="yes" Source="SourceDir\NetShift.deps.json" />
+            </Component>
+            <Component Id="cmpKrIx_2Df7b4DM7E828UnREF.Ptc" Directory="APPFOLDER" Guid="{1EBC933A-A548-4C9F-83D3-8709C3A79686}">
+                <File Id="filtG6OuAiGqu2eRmW57mLuA94F.QA" KeyPath="yes" Source="SourceDir\NetShift.dll" />
+            </Component>
+            <Component Id="cmpZLVkGs_uMjOoVaw9DY44q.6hEYk" Directory="APPFOLDER" Guid="{1518D3DB-D661-4832-9A60-437429662F3A}">
+                <File Id="filpQXEd.LVhaWCp_YIzEAwh9Ml1Sg" KeyPath="yes" Source="SourceDir\NetShift.exe" />
+            </Component>
+            <Component Id="cmp.s3R9zMYLt4hWhkOCZREZrZjA3U" Directory="APPFOLDER" Guid="{84BC0326-159C-4556-A558-40CE1C9F089D}">
+                <File Id="fildVlKZcmxLeQ5Yb1V.8RP3Tp_hQg" KeyPath="yes" Source="SourceDir\NetShift.Models.dll" />
+            </Component>
+            <Component Id="cmpUcXyRz8ex4.aDn.p0PjCbwrcb48" Directory="APPFOLDER" Guid="{64FD9739-F788-47E5-A521-0CF57EA63717}">
+                <File Id="filT0V1AC7NvwBo6qt0i.HQaSHd0JM" KeyPath="yes" Source="SourceDir\NetShift.Models.pdb" />
+            </Component>
+            <Component Id="cmpKJ0teW8xdAjBnwoZ4knN7pyzhXw" Directory="APPFOLDER" Guid="{A6B0F293-DC8A-47B6-8FE5-9BA465483850}">
+                <File Id="filP.gvw0ro4vZxTBehkT9Ga01wb_s" KeyPath="yes" Source="SourceDir\NetShift.pdb" />
+            </Component>
+            <Component Id="cmpVk7cs4gV3NnWNI4ccLSUUcsoMQ4" Directory="APPFOLDER" Guid="{1A56C2B9-8227-45AF-BB40-C25CA6A698C4}">
+                <File Id="filxMT0pLc1OpjU4uRka_bsNjtGZDU" KeyPath="yes" Source="SourceDir\NetShift.runtimeconfig.json" />
+            </Component>
+            <Component Id="cmpXBcXhpm3zz5Mp_pfNABUqMYTmhA" Directory="APPFOLDER" Guid="{1A658B16-37F9-4487-A6A1-54CFD7C5DEAA}">
+                <File Id="fil6QZHP.99bTOe6AFELa.lkKipH3s" KeyPath="yes" Source="SourceDir\System.CodeDom.dll" />
+            </Component>
+            <Component Id="cmpOKHw.plb1a0NCMN076QTYFC9QxI" Directory="APPFOLDER" Guid="{E4403FE8-35ED-4882-AF6F-7381E92923BD}">
+                <File Id="fil9CXkp6hL7yu4GEhTovTCcgziSmw" KeyPath="yes" Source="SourceDir\System.Management.dll" />
+            </Component>
+            <Component Id="cmpKNdEzJMdun3su2gV4E_21ikj2Mc" Directory="APPFOLDER" Guid="{B00CE11B-767C-4183-ABEF-1C74115E7D3F}">
+                <File Id="filIrKEZKR4mJiLSQaiHCNCAxb44NU" KeyPath="yes" Source="SourceDir\System.Security.Cryptography.Pkcs.dll" />
+            </Component>
+            <Component Id="cmptgjDotUH.tcHR8rcX04hdzGvIRw" Directory="APPFOLDER" Guid="{71E37FC9-5650-4594-A6A6-2A00D45D0A9E}">
+                <File Id="filMfvg3KMBv10WmWR.pY88yxH4cxA" KeyPath="yes" Source="SourceDir\System.Security.Cryptography.Xml.dll" />
+            </Component>
+            <Component Id="cmp8_dO7fgpE.QLA70y0AwRlx2ee4E" Directory="APPFOLDER" Guid="{33907EC7-3BAD-4C61-9C9C-3033116A9404}">
+                <Class Id="{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}" Context="InprocServer32" Description="System.ServiceModel.ComIntegration.DllHostInitializer" ThreadingModel="both" ForeignServer="mscoree.dll">
+                    <ProgId Id="System.ServiceModel.ComIntegration.DllHostInitializer" Description="System.ServiceModel.ComIntegration.DllHostInitializer" />
+                </Class>
+                <Class Id="{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}" Context="InprocServer32" Description="System.ServiceModel.ComIntegration.ServiceMoniker" ThreadingModel="both" ForeignServer="mscoree.dll">
+                    <ProgId Id="System.ServiceModel.ComIntegration.ServiceMoniker" Description="System.ServiceModel.ComIntegration.ServiceMoniker" />
+                </Class>
+                <File Id="fil4VX0SC0F9kTiAPrAF23McKPThRQ" KeyPath="yes" Source="SourceDir\System.ServiceModel.dll" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}" Value="" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32\4.0.0.0" Name="Class" Value="System.ServiceModel.ComIntegration.DllHostInitializer" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32\4.0.0.0" Name="Assembly" Value="System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32\4.0.0.0" Name="RuntimeVersion" Value="v4.0.30319" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32\4.0.0.0" Name="CodeBase" Value="file:///C:/WINDOWS/Microsoft.Net/assembly/GAC_MSIL/System.ServiceModel/v4.0_4.0.0.0__b77a5c561934e089/System.ServiceModel.dll" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32" Name="Class" Value="System.ServiceModel.ComIntegration.DllHostInitializer" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32" Name="Assembly" Value="System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32" Name="RuntimeVersion" Value="v4.0.30319" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{59856830-3ECB-4D29-9CFE-DDD0F74B96A2}\InprocServer32" Name="CodeBase" Value="file:///C:/WINDOWS/Microsoft.Net/assembly/GAC_MSIL/System.ServiceModel/v4.0_4.0.0.0__b77a5c561934e089/System.ServiceModel.dll" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}" Value="" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32\4.0.0.0" Name="Class" Value="System.ServiceModel.ComIntegration.ServiceMoniker" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32\4.0.0.0" Name="Assembly" Value="System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32\4.0.0.0" Name="RuntimeVersion" Value="v4.0.30319" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32\4.0.0.0" Name="CodeBase" Value="file:///C:/WINDOWS/Microsoft.Net/assembly/GAC_MSIL/System.ServiceModel/v4.0_4.0.0.0__b77a5c561934e089/System.ServiceModel.dll" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32" Name="Class" Value="System.ServiceModel.ComIntegration.ServiceMoniker" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32" Name="Assembly" Value="System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32" Name="RuntimeVersion" Value="v4.0.30319" Type="string" Action="write" />
+                <RegistryValue Root="HKCR" Key="CLSID\{CE39D6F3-DAB7-41B3-9F7D-BD1CC4E92399}\InprocServer32" Name="CodeBase" Value="file:///C:/WINDOWS/Microsoft.Net/assembly/GAC_MSIL/System.ServiceModel/v4.0_4.0.0.0__b77a5c561934e089/System.ServiceModel.dll" Type="string" Action="write" />
+            </Component>
+            <Component Id="cmptUjxAlIOTH4a72bHYNqEZvZaNDE" Directory="APPFOLDER" Guid="{8498D4F1-0D43-4EEC-A3A1-ABE9D38E576A}">
+                <File Id="filp7wWvNJ3VQakpQwUvKPZ_9.isXk" KeyPath="yes" Source="SourceDir\System.ServiceModel.Duplex.dll" />
+            </Component>
+            <Component Id="cmpA7BcUJrDFab62TUkdWHzTB2h4UU" Directory="APPFOLDER" Guid="{9D0C8771-A61C-42C4-960F-3A0F8A81F0E0}">
+                <File Id="filNHfttWmFaR6Ud9hjD_FCbig3Aug" KeyPath="yes" Source="SourceDir\System.ServiceModel.NetFramingBase.dll" />
+            </Component>
+            <Component Id="cmp2ewZh.bjKSEYPH_YGi2.x7nGJ1s" Directory="APPFOLDER" Guid="{E8CAA117-EF12-42C5-A092-1C90C3584EDF}">
+                <File Id="filzBd94YtRpPK3NJNDa9FAB.5Ji0o" KeyPath="yes" Source="SourceDir\System.ServiceModel.NetNamedPipe.dll" />
+            </Component>
+            <Component Id="cmpiW8je2c18Y7T5xAradCOp89XZEA" Directory="APPFOLDER" Guid="{C6323025-58C6-4218-BCD7-B7BF51466A96}">
+                <File Id="filUwEsMlQW83dApV8cI34SLwn8LFM" KeyPath="yes" Source="SourceDir\System.ServiceModel.Primitives.dll" />
+            </Component>
+            <Component Id="cmpnd4GeeqEQFS81b9bEYygwKAbulM" Directory="APPFOLDER" Guid="{F9A88F14-7B68-4EF1-B7E4-3DCABFAE177F}">
+                <File Id="filBcfgeoaeFfVDH68EuchMG43TcdQ" KeyPath="yes" Source="SourceDir\System.ServiceModel.Security.dll" />
+            </Component>
+            <Component Id="cmpCM4fj9y04.AWCg0TCcDeGlpqWXQ" Directory="APPFOLDER" Guid="{9AC6C897-3675-4B27-BD67-DAB8D2F6F0A0}">
+                <File Id="filossk89P3ow2IJMAfonLTMEwBnaw" KeyPath="yes" Source="SourceDir\WinRT.Runtime.dll" />
+            </Component>
+            <Component Id="cmp7vUKSHtex_P.8THQvFOvlzIFkbY" Directory="dir6o4UxCzwU2WK8aLCJSxaoPXNiLI" Guid="{AF7B5D48-EA69-4FF0-BEC8-341600CE4CE8}">
+                <File Id="filjeN.NdqzS0JgARGD9lHPM67.5ek" KeyPath="yes" Source="SourceDir\cs\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpoYrXD8dyFiyBFU_0kLWXrqjVqD0" Directory="dir6o4UxCzwU2WK8aLCJSxaoPXNiLI" Guid="{DBB484ED-42A0-4C1E-B16B-EA4D23435B56}">
+                <File Id="filwdQ8r19ytaEHW3k9snaz50J2VK8" KeyPath="yes" Source="SourceDir\cs\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpmqVOyJlwbiyMyMcHjQnKVbMBOHs" Directory="dir6o4UxCzwU2WK8aLCJSxaoPXNiLI" Guid="{213DE226-443C-4889-80B7-EE3EB2672807}">
+                <File Id="filwD.RCSMibbSI.dJpGHQZ1vJGrC0" KeyPath="yes" Source="SourceDir\cs\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmptV4DG.vJqBZTjZz8UPXxzcfJy_I" Directory="dirPjvSbkkzRrm8aPMJEkwf0_dYM7U" Guid="{85A2DE46-6EC5-4E0A-9C72-501F2D2665FF}">
+                <File Id="filK7Go8ZIXeyqTaiif4_fG9GxFQLU" KeyPath="yes" Source="SourceDir\de\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmphtNUHcZTHwtY.8bahnUSiUp_hRw" Directory="dirPjvSbkkzRrm8aPMJEkwf0_dYM7U" Guid="{17D467AA-C757-4E68-9117-4391E66CC290}">
+                <File Id="filmRb0Mw2Sb8Pxex2zv_glo1kNOSM" KeyPath="yes" Source="SourceDir\de\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpfWuIZDe_XNZy6yHV.Xyz.YBXs_s" Directory="dirPjvSbkkzRrm8aPMJEkwf0_dYM7U" Guid="{199BBA21-9852-466D-847F-EEB7C25182C5}">
+                <File Id="filixnA7AvKwavs8uKWyz0YFMVkz60" KeyPath="yes" Source="SourceDir\de\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpI300FuhfDPFW89Jpf0ZOC3etxak" Directory="dirzTV0gfhPV_M1aSkMwLd4Bi9PWfg" Guid="{3943CA06-2532-4947-A2B9-416BA291231F}">
+                <File Id="filV1iIVmkuwbS9CYANEz6DYUtuRoQ" KeyPath="yes" Source="SourceDir\es\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmprpPB0QcNBgX3PWqTwJ4TYPknfWU" Directory="dirzTV0gfhPV_M1aSkMwLd4Bi9PWfg" Guid="{EAE0C0BC-277E-4C5E-9094-3B8BBA0D0BBA}">
+                <File Id="fil5CeP5jRgWHoJfwboYtSn5POly_0" KeyPath="yes" Source="SourceDir\es\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpwamu0GF1FSSfiyg4xkjnNest8UM" Directory="dirzTV0gfhPV_M1aSkMwLd4Bi9PWfg" Guid="{EB369522-36B4-4F61-9BFD-CAA56D203652}">
+                <File Id="filtLYK02NY1AcGJmX89cx47w8ExHo" KeyPath="yes" Source="SourceDir\es\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpf.tGFhchWOMkV4kjeyYhmOPgCdc" Directory="dirlmjSCwQdX8B5IgKRm_Xrtkb_VKc" Guid="{FEB23CAE-DEF5-4F6F-98CA-3B955CFE4E78}">
+                <File Id="filxu1Iwpl.YFbNyamCyZxgX9kEEAA" KeyPath="yes" Source="SourceDir\fr\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpihOz1QnzYyXLcOptdCuaiPG8UhU" Directory="dirlmjSCwQdX8B5IgKRm_Xrtkb_VKc" Guid="{F8C028CC-4CA2-4116-95BE-0BABAA10BC2A}">
+                <File Id="fil9f9Mfe44uuSIv5GUgLszYQUV9nk" KeyPath="yes" Source="SourceDir\fr\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmp3zRRKM_X.BJr4UeRes3ZyA4fbts" Directory="dirlmjSCwQdX8B5IgKRm_Xrtkb_VKc" Guid="{FAD55CF8-7E9B-4B8F-BCA7-258E7DDC2CAC}">
+                <File Id="filv9w6mKV42bZfwU1gy_V5.wA7XVo" KeyPath="yes" Source="SourceDir\fr\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmprweJnKMQbGhUxZ8s9AS7VLGYwgQ" Directory="dir5soRUEatG8W1JoabOYGTHTFzpZA" Guid="{9C705DB6-8465-4B56-AACE-5021EC492673}">
+                <File Id="filHMb.RUUO6HZ5XEt1YFjLdb16CTE" KeyPath="yes" Source="SourceDir\it\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpKuCUqdTC6duR4eWfWtWoan9Ee2Q" Directory="dir5soRUEatG8W1JoabOYGTHTFzpZA" Guid="{3E735A62-C1A1-4119-800D-18DFB0DD41D3}">
+                <File Id="fil.1FiNp0RzqWxJm7uTJUtqSXLXZs" KeyPath="yes" Source="SourceDir\it\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpLN.e4YXHyB5y65eqWBvHItTjiLQ" Directory="dir5soRUEatG8W1JoabOYGTHTFzpZA" Guid="{795FBFE5-DD2C-46B3-89F1-FC28DDB274B1}">
+                <File Id="filGo1_T0UTjjKf8nYVXjEbWgP7so0" KeyPath="yes" Source="SourceDir\it\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpBAydtDjzzLGesZBWwGpLJADRY9E" Directory="dir_Y2e23s0OZ_s45NGPHXmPOsb_KM" Guid="{4D1AAEAB-3E2C-4C2F-8DD0-92674EA7435B}">
+                <File Id="filwUfDcImr9gZmoWBJWuf2lyfOXOI" KeyPath="yes" Source="SourceDir\ja\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpDWBQTkx1g7LQm2ZNrwsQbwqFs1g" Directory="dir_Y2e23s0OZ_s45NGPHXmPOsb_KM" Guid="{589446D0-726A-43C0-A9F1-BC2357256A3B}">
+                <File Id="filwy4y1DADi1RjgAq1ibMtX5k5MkE" KeyPath="yes" Source="SourceDir\ja\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpAjqj7_b8s7fYeGfRgvegtGfn7zc" Directory="dir_Y2e23s0OZ_s45NGPHXmPOsb_KM" Guid="{2C1C31CF-B595-40A0-ABA7-5451D5F4E02B}">
+                <File Id="filSSDzGyhga8xXvAWnmqpzWeWSU_I" KeyPath="yes" Source="SourceDir\ja\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpJHxVQfKUb_BFcqI1xwIyYPoq1RQ" Directory="diriLHMHcbt0Cfh1XyMa2UrK8kFseA" Guid="{CBE477FD-53C2-4521-B826-3CCE4EFC6417}">
+                <File Id="filUO6bpwIRxuwGUlJ_zkU0S_Z8F_E" KeyPath="yes" Source="SourceDir\ko\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmp.LFdxpVApSPx0cKdNCGcplAC6g8" Directory="diriLHMHcbt0Cfh1XyMa2UrK8kFseA" Guid="{2DC314D5-64B5-444E-AF70-C4FB324940D8}">
+                <File Id="filBMKclTvD_YzEWRpDzpE2g0om3iI" KeyPath="yes" Source="SourceDir\ko\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpgzjGRgABXuk_5rs2wgv_cVSCVYg" Directory="diriLHMHcbt0Cfh1XyMa2UrK8kFseA" Guid="{60284DBA-3744-40FA-95CF-EEE7175F1694}">
+                <File Id="filKh3GfQuigknJcLD8quqIw_hfgQI" KeyPath="yes" Source="SourceDir\ko\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmp5ppNb.HXbZ51s5Id49AlgRXc.DE" Directory="dir1LcUPLUrbdVn4sB6uAequzni_4w" Guid="{ADD4A868-8ECC-4C36-9A8A-DC1DF2CB0A1E}">
+                <File Id="filwCsj7Yn7aipS_Y.yqPm1KHO4fDA" KeyPath="yes" Source="SourceDir\pl\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmphVhAy.hWfZi7hWiX3fRrHPxxVCY" Directory="dir1LcUPLUrbdVn4sB6uAequzni_4w" Guid="{9CE8C572-0FDA-4EB2-AD01-945F2D1C034E}">
+                <File Id="fil3DYjkyz9spEyNgjdENJN6GH3jgs" KeyPath="yes" Source="SourceDir\pl\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpp6zXJGKzPoTXN2c95K1xwCGU8Oc" Directory="dir1LcUPLUrbdVn4sB6uAequzni_4w" Guid="{A8A34F73-E307-4ED3-BDD0-78AD22CE5B87}">
+                <File Id="filwRQM.Er68208EjayssaO3G_lVS4" KeyPath="yes" Source="SourceDir\pl\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpwqCMg8KLC36jnGyyONiOD6iwHtA" Directory="dir0d9jJjjXjeZwEpKlLdB2u81kSLM" Guid="{596321CA-A9F3-49FC-BDDC-9290F03A5ED0}">
+                <File Id="filzTX37AJ1G4ToV4v2h2_5F7i7anY" KeyPath="yes" Source="SourceDir\pt-BR\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpKwP4chejP3ZSyvSASnLiCyjx37M" Directory="dir0d9jJjjXjeZwEpKlLdB2u81kSLM" Guid="{30316AF2-50B3-4C36-8FFF-242E904340C5}">
+                <File Id="filqBma2X2Vb.NO5jAdNvZkD14BB1o" KeyPath="yes" Source="SourceDir\pt-BR\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpBVgBUzN3pYLCo2rYjq48p6KZBAk" Directory="dir0d9jJjjXjeZwEpKlLdB2u81kSLM" Guid="{12DC25E3-BB4A-4230-82D9-3C359B6394B5}">
+                <File Id="filiDaj2Gz0KU6Ray0bapc3tF.2p6k" KeyPath="yes" Source="SourceDir\pt-BR\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpwb1v4WLocRq6.61w81Kd12ib.5s" Directory="diriAnJjLwdU7eXLe0qEmcB9g3cJds" Guid="{1FB7105B-9CE2-4C44-B9F6-55374EB0A147}">
+                <File Id="fil4ot3TwZsErnv8l65fSN0hAJsHZU" KeyPath="yes" Source="SourceDir\ru\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpKyVA8xEqsvyBrAqq9sjSUEbgdcU" Directory="diriAnJjLwdU7eXLe0qEmcB9g3cJds" Guid="{1117C098-1E41-4348-B801-F37A7A088030}">
+                <File Id="filLpo9ZRx474SqJczSTMiXy_83Aww" KeyPath="yes" Source="SourceDir\ru\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmp7muY_t79ch9IAF.5ErVReQU8WYk" Directory="diriAnJjLwdU7eXLe0qEmcB9g3cJds" Guid="{41F589C7-E1D4-4C5C-8DBA-083795DC95FD}">
+                <File Id="fil6AsVCN_hYkdGpy7Ns9GqtQaU93A" KeyPath="yes" Source="SourceDir\ru\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpWW_5oRgQr2LmzasQUCgnY3.5WXo" Directory="dirsVp63OUXyAi_XvYDXcTtQPRUcAM" Guid="{61EE2207-DCAA-4E41-946F-904DDA04B581}">
+                <File Id="fil3i1Uvh51cf2rjCrChpbQfUqyCGo" KeyPath="yes" Source="SourceDir\runtimes\win\lib\net8.0\System.Management.dll" />
+            </Component>
+            <Component Id="cmp1p13Zw1ksVs9dBUWDPOT1Za1Qos" Directory="dirsVp63OUXyAi_XvYDXcTtQPRUcAM" Guid="{3400DA1C-24EC-4F06-AF36-FB293228C01E}">
+                <File Id="fil.o.RaDYwKy_12ywUdvSPXJCagD8" KeyPath="yes" Source="SourceDir\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll" />
+            </Component>
+            <Component Id="cmptYrHCB2uLK3ZUHo1Au2kOVRlwTk" Directory="dirwv89eEk_OBSzXfArgsWdWmWQYiE" Guid="{F4FC8D15-095D-452E-ABF9-1F0E0E1196B4}">
+                <File Id="filvpoumm_2dstIFE6BRMYK7IqTy1Q" KeyPath="yes" Source="SourceDir\tr\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpvLA23iEI5MYwSgIVkm4eUXsjb5Q" Directory="dirwv89eEk_OBSzXfArgsWdWmWQYiE" Guid="{49AD68F9-97AD-42D3-9596-2D1C30A73188}">
+                <File Id="fil_ss29OU9A0UTqNCY6IbhBoTFF14" KeyPath="yes" Source="SourceDir\tr\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpQSGSbPQAFQlvSszyr6lPBQNtM4c" Directory="dirwv89eEk_OBSzXfArgsWdWmWQYiE" Guid="{D33C4515-4A15-472D-BF1C-D7E29F60B45E}">
+                <File Id="fil5X.4cizU3raaoj1jqJOwR64V1fc" KeyPath="yes" Source="SourceDir\tr\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmpzsRuHEYodm_hDhXhnX5hWjk36e4" Directory="dirILM9.UzBkRFKsO.XZoB68_LIsM8" Guid="{675B1354-E715-4421-B137-B16070FCBF4C}">
+                <File Id="filWRAmE4ZBIFjpe1xy3WrZEOdRkAA" KeyPath="yes" Source="SourceDir\zh-Hans\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpswHYn1OEwtEFLAGiry2_DDBtQCc" Directory="dirILM9.UzBkRFKsO.XZoB68_LIsM8" Guid="{17B97DC1-D94D-4C0A-9548-72DB07FC0A65}">
+                <File Id="filXtL7dLkxAIgGqLkJBJ.4NimBrOg" KeyPath="yes" Source="SourceDir\zh-Hans\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpn.mW1O_xmtyhwasnFF6i9ZqqNCg" Directory="dirILM9.UzBkRFKsO.XZoB68_LIsM8" Guid="{7379D620-A4FA-4C44-813F-97A965B4963A}">
+                <File Id="filPGbGf8tc29OzVmVMvskYgqxMMOY" KeyPath="yes" Source="SourceDir\zh-Hans\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+            <Component Id="cmp94hb82gVEGEGcHrycY8X85xEuvM" Directory="diruzJM9q28Nm0a1EPJ7Y6SxU5FHdo" Guid="{38E03BBE-6C78-475A-8866-3B200F75724F}">
+                <File Id="filHHY2qxr9XrqOAu2PCAeDc._PDc4" KeyPath="yes" Source="SourceDir\zh-Hant\System.ServiceModel.NetFramingBase.resources.dll" />
+            </Component>
+            <Component Id="cmpYWPL5QBt14dJuDc4C83FmnuPx9M" Directory="diruzJM9q28Nm0a1EPJ7Y6SxU5FHdo" Guid="{FE1DC3F0-7284-491F-96EB-F3499A68E6E5}">
+                <File Id="filu1rIu1fA_9DFlrfd_wp.hNYOiS4" KeyPath="yes" Source="SourceDir\zh-Hant\System.ServiceModel.NetNamedPipe.resources.dll" />
+            </Component>
+            <Component Id="cmpN8XbFOJ3Awb4cc7wDvNAusqrGyU" Directory="diruzJM9q28Nm0a1EPJ7Y6SxU5FHdo" Guid="{F3BBD177-6767-4093-8055-EE3F9AE18CAC}">
+                <File Id="filjuc021O23vVVTPEXb50lmOsQaZk" KeyPath="yes" Source="SourceDir\zh-Hant\System.ServiceModel.Primitives.resources.dll" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirlKf7pDBS065stqciezEZDLXSE7A">
+            <Directory Id="dirJQNOsG1_5q97ddIth8uMJFuj9i4" Name="lib" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirwu_5BPzwUYzZgeIj.J3qQwcLUhA">
+            <Directory Id="dirlKf7pDBS065stqciezEZDLXSE7A" Name="win" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirJQNOsG1_5q97ddIth8uMJFuj9i4">
+            <Directory Id="dirsVp63OUXyAi_XvYDXcTtQPRUcAM" Name="net8.0" />
+        </DirectoryRef>
+    </Fragment>
+</Wix>

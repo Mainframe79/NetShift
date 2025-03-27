@@ -1,0 +1,39 @@
+﻿<Application x:Class="NetShift.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Define custom colors -->
+                <ResourceDictionary>
+                    <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#233269"/>
+                    <!-- Blue -->
+                    <SolidColorBrush x:Key="SecondaryHueMidBrush" Color="#f57f26"/>
+                    <!-- Orange -->
+                    <!-- Optional: Define shades for Material Design (darker/lighter variants) -->
+                    <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#4A5A9E"/>
+                    <!-- Lighter blue (approximated) -->
+                    <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="#1A264F"/>
+                    <!-- Darker blue (approximated) -->
+                    <SolidColorBrush x:Key="SecondaryHueLightBrush" Color="#F9A25F"/>
+                    <!-- Lighter orange (approximated) -->
+                    <SolidColorBrush x:Key="SecondaryHueDarkBrush" Color="#C2651F"/>
+                    <!-- Darker orange (approximated) -->
+                </ResourceDictionary>
+
+                <!-- Material Design Theme -->
+                <materialDesign:BundledTheme BaseTheme="Light" 
+                                            PrimaryColor="Blue" 
+                                            SecondaryColor="Orange" 
+                                            ColorAdjustment="{materialDesign:ColorAdjustment}"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Optional: Set a global background using the gray -->
+            <SolidColorBrush x:Key="MaterialDesignPaper" Color="#73808a"/>
+            <!-- Gray for background -->
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
