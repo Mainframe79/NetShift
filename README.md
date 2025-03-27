@@ -1,5 +1,8 @@
 # NetShift
 
+## Download
+The latest release of NetShift is available on the [Releases page](https://github.com/LazerPanth3r/NetShift-Public/releases). Download the `NetShiftInstaller.exe` file directly from GitHub Releases and run it as Administrator to install.
+
 ## Overview
 
 NetShift is a Windows utility that simplifies the process of changing IP settings on network adapters. It allows users to quickly switch between static IP configurations and DHCP using predefined presets, making it ideal for environments where network settings need to be adjusted frequently (e.g., switching between different network locations). The app is designed to be user-friendly, secure, and efficient, with a focus on minimizing user privilege requirements while ensuring robust functionality.
