@@ -117,5 +117,8 @@ For automated or silent installation (e.g., for IT administrators):
 ### Contributing
 Contributions are welcome! Please fork the repository, make your changes, and submit a pull request. Ensure your changes are well-tested and follow the project’s coding standards.
 
+<a href="https://www.buymeacoffee.com/Mainframe79" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
+
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
