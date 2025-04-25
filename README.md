@@ -97,7 +97,7 @@ For automated or silent installation (e.g., for IT administrators):
    - Set the solution configuration to Release.
    - Build the `NetShift` project: Right-click the `NetShift` project > Build.
    - Build the `NetShiftService` project: Right-click the `NetShiftService` project > Build.
-   - Copy the `NetShiftService.exe` to the `NetShiftSetup` directory: `copy D:\Github\NetShift-Public\IPChangerService\bin\Release\NetShiftService.exe D:\Github\NetShift-Public\NetShiftetup\`
+   - Copy the `NetShiftService.exe` to the `NetShiftSetup` directory: `copy D:\Github\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe D:\Github\NetShift-Public\NetShiftetup\`
    - Harvest files with `heat.exe`: `"C:\Program Files\WiX Toolset v5.0\bin\x64\heat.exe" dir "D:\Github\NetShift-Public\NetShift\bin\Release\net8.0-windows" -gg -sfrag -out "D:\Github\NetShift-Public\NetShiftSetup\NetShiftFiles.wxs"`
    - Build the `NetShiftSetup` project: Right-click the `NetShiftSetup` project > Build.
    - Update the embedded resource in the `NetShiftInstaller` project with the new `NetShiftSetup.msi`.
