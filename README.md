@@ -96,20 +96,18 @@ For automated or silent installation (e.g., for IT administrators):
    - Open the solution (NetShift-Public.sln) in Visual Studio.
    - Set the solution configuration to Release.
    - Build the `NetShift` project: Right-click the `NetShift` project > Build.
+   - - Sign `NetShift.exe`: `signapp -path "D:\Github\NetShift-Public\NetShift\bin\Release\net8.0-windows\NetShift.exe"`
    - Build the `NetShiftService` project: Right-click the `NetShiftService` project > Build.
+   - - Sign `NetShiftService.exe`: `signapp -path "D:\Github\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe"`
    - Copy the `NetShiftService.exe` to the `NetShiftSetup` directory: `copy D:\Github\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe D:\Github\NetShift-Public\NetShiftSetup\`
    - Harvest files with `heat.exe`: `"C:\Program Files\WiX Toolset v5.0\bin\x64\heat.exe" dir "D:\Github\NetShift-Public\NetShift\bin\Release\net8.0-windows" -dr APPFOLDER -cg NetShiftFiles -gg -scom -sreg -srd -template fragment -out "D:\Github\NetShift-Public\NetShiftSetup\NetShiftFiles.wxs"`
    - Build the `NetShiftSetup` project: Right-click the `NetShiftSetup` project > Build.
+   - - Sign `NetShiftSetup.msi`: `signapp -path "D:\Github\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi"`
    - Update the embedded resource in the `NetShiftInstaller` project with the new `NetShiftSetup.msi`.
    - Build the `NetShiftInstaller` project: Right-click the `NetShiftInstaller` project > Build.
+   - - Sign `NetShiftInstaller.exe`: `signapp -path "D:\Github\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe"`
 
-3. **Sign the Components** (if you have a code signing certificate):
-   - Sign `NetShift.exe`: `signapp -path "D:\Github\NetShift-Public\NetShift\bin\Release\net8.0-windows\NetShift.exe"`
-   - Sign `NetShiftService.exe`: `signapp -path "D:\Github\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe"`
-   - Sign `NetShiftSetup.msi`: `signapp -path "D:\Github\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi"`
-   - Sign `NetShiftInstaller.exe`: `signapp -path "D:\Github\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe"`
-
-4. **Test the Installer**:
+3. **Test the Installer**:
    - Copy `NetShiftInstaller.exe` to a test machine: `copy D:\Github\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe C:\Temp\`
    - Run the installer: `cd C:\Temp && NetShiftInstaller.exe`
    - Verify the installation and test the app functionality.
