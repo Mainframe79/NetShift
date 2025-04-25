@@ -107,6 +107,12 @@ For automated or silent installation (e.g., for IT administrators):
    - Build the `NetShiftInstaller` project: Right-click the `NetShiftInstaller` project > Build.
    - - Sign `NetShiftInstaller.exe`: `signapp -path "D:\Github\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe"`
 
+🧠 Quick Explanation Why
+- You must sign executables before including them in the MSI.
+- You must sign the MSI before embedding it into the installer EXE.
+- You must sign the final EXE to avoid SmartScreen warnings.
+- This preserves a trust chain from file → MSI → Installer.
+
 3. **Test the Installer**:
    - Copy `NetShiftInstaller.exe` to a test machine: `copy D:\Github\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe C:\Temp\`
    - Run the installer: `cd C:\Temp && NetShiftInstaller.exe`
