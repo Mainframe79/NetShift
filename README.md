@@ -95,18 +95,18 @@ For automated or silent installation (e.g., for IT administrators):
 2. **Build the Projects**:
    - Open the solution (NetShift-Public.sln) in Visual Studio.
    - Set the solution configuration to Release.
-   - Build the `IPChanger` project: Right-click the `IPChanger` project > Build.
-   - Build the `IPChangerService` project: Right-click the `IPChangerService` project > Build.
-   - Copy the `IPChangerService.exe` to the `IPChangerSetup` directory: `copy D:\Github\NetShift-Public\IPChangerService\bin\Release\IPChangerService.exe D:\Github\NetShift-Public\IPChangerSetup\`
-   - Harvest files with `heat.exe`: `"C:\Program Files\WiX Toolset v5.0\bin\x64\heat.exe" dir "D:\Github\NetShift-Public\IPChanger\bin\Release\net8.0-windows" -gg -sfrag -out "D:\Github\NetShift-Public\IPChangerSetup\IPChangerFiles.wxs"`
-   - Build the `IPChangerSetup` project: Right-click the `IPChangerSetup` project > Build.
-   - Update the embedded resource in the `NetShiftInstaller` project with the new `IPChangerSetup.msi`.
+   - Build the `NetShift` project: Right-click the `NetShift` project > Build.
+   - Build the `NetShiftService` project: Right-click the `NetShiftService` project > Build.
+   - Copy the `NetShiftService.exe` to the `NetShiftSetup` directory: `copy D:\Github\NetShift-Public\IPChangerService\bin\Release\NetShiftService.exe D:\Github\NetShift-Public\NetShiftetup\`
+   - Harvest files with `heat.exe`: `"C:\Program Files\WiX Toolset v5.0\bin\x64\heat.exe" dir "D:\Github\NetShift-Public\NetShift\bin\Release\net8.0-windows" -gg -sfrag -out "D:\Github\NetShift-Public\NetShiftSetup\NetShiftFiles.wxs"`
+   - Build the `NetShiftSetup` project: Right-click the `NetShiftSetup` project > Build.
+   - Update the embedded resource in the `NetShiftInstaller` project with the new `NetShiftSetup.msi`.
    - Build the `NetShiftInstaller` project: Right-click the `NetShiftInstaller` project > Build.
 
 3. **Sign the Components** (if you have a code signing certificate):
-   - Sign `IPChanger.exe`: `signapp -path "D:\Github\NetShift-Public\IPChanger\bin\Release\net8.0-windows\IPChanger.exe"`
-   - Sign `IPChangerService.exe`: `signapp -path "D:\Github\NetShift-Public\IPChangerService\bin\Release\IPChangerService.exe"`
-   - Sign `IPChangerSetup.msi`: `signapp -path "D:\Github\NetShift-Public\IPChangerSetup\bin\Release\IPChangerSetup.msi"`
+   - Sign `NetShift.exe`: `signapp -path "D:\Github\NetShift-Public\NetShift\bin\Release\net8.0-windows\NetShift.exe"`
+   - Sign `NetShiftService.exe`: `signapp -path "D:\Github\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe"`
+   - Sign `NetShiftSetup.msi`: `signapp -path "D:\Github\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi"`
    - Sign `NetShiftInstaller.exe`: `signapp -path "D:\Github\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe"`
 
 4. **Test the Installer**:
