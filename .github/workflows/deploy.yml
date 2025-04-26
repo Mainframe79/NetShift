@@ -11,6 +11,7 @@ on:
       - 'readme.md'
       - '**/README.md'
       - '**/readme.md'
+      - '.github/workflows/deploy.yml'
 
 permissions:
   actions: read
@@ -120,9 +121,12 @@ jobs:
             -out "${{ env.SetupPath }}\NetShiftFiles.wxs"
         shell: powershell
 
-      - name: Build NetShiftSetup.msi
+      - name: Build NetShiftSetup.msi (Package.wxs + NetShiftFiles.wxs)
         run: |
-          & "${{ env.WIX_PATH }}\wix.exe" build NetShiftSetup\Package.wxs -o NetShiftSetup\bin\Release\NetShiftSetup.msi
+          & "${{ env.WIX_PATH }}\wix.exe" build `
+            NetShiftSetup\Package.wxs `
+            NetShiftSetup\NetShiftFiles.wxs `
+            -o NetShiftSetup\bin\Release\NetShiftSetup.msi
         shell: powershell
 
       - name: Verify NetShiftSetup.msi built
@@ -149,7 +153,7 @@ jobs:
           Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" -Destination "${{ env.NetShiftSetupMsi }}" -Force
         shell: powershell
 
-      - name: Build NetShiftInstaller.exe
+      - name: Build NetShiftInstaller.exe (Bundle)
         run: |
           & "${{ env.WIX_PATH }}\wix.exe" build NetShiftSetup\Bundle.wxs -o NetShiftSetup\bin\Release\NetShiftInstaller.exe
         shell: powershell
