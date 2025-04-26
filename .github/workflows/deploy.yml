@@ -45,12 +45,35 @@ jobs:
       with:
         msbuild-version: '17.8'
 
+    - name: Debug WiX download URL
+      run: |
+        curl -I https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix502-binaries.zip
+      shell: powershell
+
     - name: Install WiX Toolset v5
       run: |
-        Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.0/wix500-binaries.zip" -OutFile "wix.zip"
+        $retries = 3
+        $success = $false
+        for ($i = 1; $i -le $retries; $i++) {
+          try {
+            Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix502-binaries.zip" -OutFile "wix.zip" -ErrorAction Stop
+            $success = $true
+            break
+          } catch {
+            echo "Attempt $i failed: $_"
+            if ($i -eq $retries) { throw "Failed to download WiX after $retries attempts" }
+            Start-Sleep -Seconds 10
+          }
+        }
         Expand-Archive -Path "wix.zip" -DestinationPath "${{ env.WIX_PATH }}"
         Remove-Item "wix.zip"
         echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: powershell
+
+    - name: Verify WiX installation
+      run: |
+        dir "${{ env.WIX_PATH }}"
+        & "${{ env.WIX_PATH }}\heat.exe" --version
       shell: powershell
 
     - name: Create artifacts directory
@@ -199,8 +222,8 @@ jobs:
       run: |
         echo "Workflow failed. Checking environment..."
         dir "${{ env.WIX_PATH }}"
-        choco --version
-        curl -I https://community.chocolatey.org/api/v2/package/wixtoolset/5.0.0
+        curl -I https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix502-binaries.zip
+        & "${{ env.WIX_PATH }}\heat.exe" --version
       shell: powershell
 
   release:
