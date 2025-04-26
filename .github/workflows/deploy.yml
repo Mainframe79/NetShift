@@ -28,7 +28,7 @@ jobs:
       SolutionPath: ${{ github.workspace }}\NetShift.sln
       SetupPath: ${{ github.workspace }}\NetShiftSetup
       NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
-      NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
+      NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\NetShift.exe
       NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows
       NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
       NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
