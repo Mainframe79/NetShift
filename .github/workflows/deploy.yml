@@ -60,6 +60,11 @@ jobs:
 
       - name: Rebuild NetShift project after stamping
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
+        
+      - name: Update NetShiftBin path after rebuild
+        run: |
+        echo "NetShiftBin=${{ github.workspace }}\NetShift\bin\x64\Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: powershell
 
       - name: Conditionally sign NetShift.exe
         if: env.SIGN_CODE == 'true'
