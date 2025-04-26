@@ -106,7 +106,8 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftSetup.msi
-        run: & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftSetup.msi"
+        run: | 
+          & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftSetup.msi"
         shell: powershell
 
       - name: Sign NetShiftSetup.msi
