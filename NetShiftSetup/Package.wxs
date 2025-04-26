@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-	<?define NetShiftServiceBuildDir="$(sys.SOURCEFILEDIR)\..\NetShiftService\bin\Release" ?>
-	<?define NetShiftBuildDir="$(sys.SOURCEFILEDIR)\..\NetShift\bin\Release\net8.0-windows" ?>
+	<?define NetShiftServiceBuildDir="$(sys.SOURCEFILEDIR)\..\NetShiftService\bin\x64\Release" ?>
+	<?define NetShiftBuildDir="$(sys.SOURCEFILEDIR)\..\NetShift\bin\x64\Release\net8.0-windows" ?>
 	<Package Name="NetShift"
              Manufacturer="ZentrixLabs"
              Version="1.0.0.1"
@@ -57,7 +57,7 @@
 		<!-- Icon file in Assets folder -->
 		<DirectoryRef Id="ASSETSFOLDER">
 			<Component Id="CMP_Icon" Guid="{5CA92289-B7DC-47FD-A1BC-7AD7E6BA1003}">
-				<File Id="FILE_Icon" Source="$(var.NetShiftBuildDir)\Assets\NetShiftIcon.ico" KeyPath="yes" />
+				<File Id="FILE_Icon" Source="NetShiftIcon.ico" KeyPath="yes" />
 			</Component>
 		</DirectoryRef>
 
@@ -90,7 +90,7 @@
 		</DirectoryRef>
 
 		<!-- Define the icon for shortcuts -->
-		<Icon Id="NetShiftIcon.ico" SourceFile="$(var.NetShiftBuildDir)\Assets\NetShiftIcon.ico" />
+		<Icon Id="NetShiftIcon.ico" SourceFile="NetShiftIcon.ico" />
 
 		<!-- Feature to install the components -->
 		<Feature Id="MainApplication" Title="NetShift" Level="1">

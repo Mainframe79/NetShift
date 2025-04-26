@@ -69,10 +69,6 @@
     <EmbeddedResource Include="NetShiftSetup.msi" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="NDP48-x86-x64-AllOS-ENU.exe" />
-    <EmbeddedResource Include="windowsdesktop-runtime-8.0.14-win-x64.exe" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
