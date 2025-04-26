@@ -23,17 +23,18 @@ jobs:
   build-sign-release:
     runs-on: windows-latest
 
-    env:
-      BASE_DIR: ${{ github.workspace }}
-      ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
-      NetShiftBin: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows
-      SetupPath: ${{ github.workspace }}\NetShiftSetup
-      SolutionPath: ${{ github.workspace }}\NetShift.sln
-      NetShiftExe: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows\NetShift.exe
-      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\Release\NetShiftService.exe
-      NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
-      NetShiftInstallerExe: ${{ github.workspace }}\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
-      WIX_PATH: ${{ github.workspace }}\tools\wix
+  env:
+    BASE_DIR: ${{ github.workspace }}
+    ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
+    SolutionPath: ${{ github.workspace }}\NetShift.sln
+    SetupPath: ${{ github.workspace }}\NetShiftSetup
+    NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
+    NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
+    NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
+    NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
+    NetShiftInstallerExe: ${{ github.workspace }}\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
+    WIX_PATH: ${{ github.workspace }}\tools\wix
+
 
     steps:
     - name: Checkout Repository
