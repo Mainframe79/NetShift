@@ -180,7 +180,7 @@ jobs:
           path: ${{ env.ARTIFACTS_DIR }}\NetShiftSetup.exe
           retention-days: 7
 
-       - name: Build NetShiftInstaller.exe from Bundle.wxs
+      - name: Build NetShiftInstaller.exe from Bundle.wxs
         run: |
           & tools\wix\wix.exe build NetShiftSetup\Bundle.wxs -o NetShiftSetup\bin\x64\Release\NetShiftInstaller.exe
 
