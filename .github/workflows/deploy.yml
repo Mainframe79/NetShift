@@ -1,0 +1,112 @@
+name: Build and Release NetShift
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+    paths-ignore:
+      - 'README.md'
+      - 'readme.md'
+      - '**/README.md'
+      - '**/readme.md'
+
+jobs:
+  build-sign-release:
+    runs-on: windows-latest
+    env:
+      SolutionPath: D:\a\NetShift-Public\NetShift-Public\NetShift-Public.sln
+      NetShiftExe: D:\a\NetShift-Public\NetShift-Public\NetShift\bin\Release\net8.0-windows\NetShift.exe
+      NetShiftServiceExe: D:\a\NetShift-Public\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe
+      NetShiftSetupMsi: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi
+      NetShiftInstallerExe: D:\a\NetShift-Public\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
+      SetupPath: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Install WiX Toolset v5
+      run: choco install wixtoolset --version=5.0.0
+
+    - name: Build NetShift
+      run: msbuild NetShift\NetShift.csproj /p:Configuration=Release
+
+    - name: Sign NetShift.exe
+      uses: sslcom/actions-code-signer@v1
+      with:
+        username: ${{ secrets.CODESIGN_USERNAME }}
+        password: ${{ secrets.CODESIGN_PASSWORD }}
+        credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+        totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+        file: ${{ env.NetShiftExe }}
+        output_path: ${{ env.NetShiftExe }}
+
+    - name: Build NetShiftService
+      run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release
+
+    - name: Sign NetShiftService.exe
+      uses: sslcom/actions-code-signer@v1
+      with:
+        username: ${{ secrets.CODESIGN_USERNAME }}
+        password: ${{ secrets.CODESIGN_PASSWORD }}
+        credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+        totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+        file: ${{ env.NetShiftServiceExe }}
+        output_path: ${{ env.NetShiftServiceExe }}
+
+    - name: Copy signed NetShiftService.exe into Setup directory
+      run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}" -Force
+
+    - name: Run heat.exe to harvest files
+      run: |
+        & "C:\Program Files\WiX Toolset v5.0\bin\x64\heat.exe" dir "${{ env.NetShiftExe | Split-Path -Parent }}" `
+        -dr APPFOLDER -cg NetShiftFiles -gg -scom -sreg -srd -template:fragment `
+        -out "${{ env.SetupPath }}\NetShiftFiles.wxs"
+
+    - name: Build NetShiftSetup (MSI)
+      run: msbuild NetShiftSetup\NetShiftSetup.wixproj /p:Configuration=Release
+
+    - name: Sign NetShiftSetup.msi
+      uses: sslcom/actions-code-signer@v1
+      with:
+        username: ${{ secrets.CODESIGN_USERNAME }}
+        password: ${{ secrets.CODESIGN_PASSWORD }}
+        credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+        totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+        file: ${{ env.NetShiftSetupMsi }}
+        output_path: ${{ env.NetShiftSetupMsi }}
+
+    - name: Build NetShiftInstaller
+      run: msbuild NetShiftInstaller\NetShiftInstaller.wixproj /p:Configuration=Release
+
+    - name: Sign NetShiftInstaller.exe
+      uses: sslcom/actions-code-signer@v1
+      with:
+        username: ${{ secrets.CODESIGN_USERNAME }}
+        password: ${{ secrets.CODESIGN_PASSWORD }}
+        credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+        totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+        file: ${{ env.NetShiftInstallerExe }}
+        output_path: ${{ env.NetShiftInstallerExe }}
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetShiftArtifacts
+        path: |
+          ${{ env.NetShiftInstallerExe }}
+          ${{ env.NetShiftSetupMsi }}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          ${{ env.NetShiftInstallerExe }}
+          ${{ env.NetShiftSetupMsi }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
