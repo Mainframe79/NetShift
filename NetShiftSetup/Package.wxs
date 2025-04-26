@@ -3,8 +3,8 @@
 	<?define NetShiftServiceBuildDir="$(sys.SOURCEFILEDIR)\..\NetShiftService\bin\Release" ?>
 	<?define NetShiftBuildDir="$(sys.SOURCEFILEDIR)\..\NetShift\bin\Release\net8.0-windows" ?>
 	<Package Name="NetShift"
-             Manufacturer="NetShift Team"
-             Version="1.0.0.0"
+             Manufacturer="ZentrixLabs"
+             Version="1.0.0.1"
              UpgradeCode="{CB234246-E944-4501-AF6C-B57678F04C1F}"
              Language="1033"
              Compressed="yes"
