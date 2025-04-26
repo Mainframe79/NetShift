@@ -119,29 +119,6 @@ jobs:
         signing_method: v2
         malware_block: false
 
-    - name: Debug signing
-      if: failure()
-      run: |
-        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to get an access token from SSL.com..."
-        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        $body = @{
-          grant_type = "password"
-          username = "${{ secrets.CODESIGN_USERNAME }}"
-          password = "${{ secrets.CODESIGN_PASSWORD }}"
-          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
-        }
-        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
-        if ($response) {
-          $token = ($response.Content | ConvertFrom-Json).access_token
-          echo "Access token retrieved successfully."
-          echo "Attempting to list credentials with access token..."
-          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
-        } else {
-          echo "Failed to retrieve access token."
-        }
-      shell: powershell
-
     - name: Upload NetShift.exe artifact
       uses: actions/upload-artifact@v4
       with:
@@ -151,17 +128,6 @@ jobs:
 
     - name: Copy signed NetShift.exe to NetShiftBin
       run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe\NetShift.exe" "${{ env.NetShiftExe }}" -Force
-
-    - name: Debug build output for NetShiftService
-      run: |
-        echo "Checking NetShiftService.exe path:"
-        dir "${{ github.workspace }}\NetShiftService\bin\x64\Release" -ErrorAction SilentlyContinue
-        if (Test-Path "${{ env.NetShiftServiceExe }}") {
-          echo "NetShiftService.exe found at ${{ env.NetShiftServiceExe }}"
-        } else {
-          throw "NetShiftService.exe not found at ${{ env.NetShiftServiceExe }}"
-        }
-      shell: powershell
 
     - name: Sign NetShiftService.exe
       id: sign_netshift_service
@@ -177,29 +143,6 @@ jobs:
         environment_name: PROD
         signing_method: v2
         malware_block: false
-
-    - name: Debug signing NetShiftService
-      if: failure()
-      run: |
-        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to get an access token from SSL.com..."
-        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        $body = @{
-          grant_type = "password"
-          username = "${{ secrets.CODESIGN_USERNAME }}"
-          password = "${{ secrets.CODESIGN_PASSWORD }}"
-          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
-        }
-        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
-        if ($response) {
-          $token = ($response.Content | ConvertFrom-Json).access_token
-          echo "Access token retrieved successfully."
-          echo "Attempting to list credentials with access token..."
-          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
-        } else {
-          echo "Failed to retrieve access token."
-        }
-      shell: powershell
 
     - name: Upload NetShiftService.exe artifact
       uses: actions/upload-artifact@v4
@@ -242,29 +185,6 @@ jobs:
         signing_method: v2
         malware_block: false
 
-    - name: Debug signing NetShiftSetup
-      if: failure()
-      run: |
-        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to get an access token from SSL.com..."
-        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        $body = @{
-          grant_type = "password"
-          username = "${{ secrets.CODESIGN_USERNAME }}"
-          password = "${{ secrets.CODESIGN_PASSWORD }}"
-          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
-        }
-        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
-        if ($response) {
-          $token = ($response.Content | ConvertFrom-Json).access_token
-          echo "Access token retrieved successfully."
-          echo "Attempting to list credentials with access token..."
-          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
-        } else {
-          echo "Failed to retrieve access token."
-        }
-      shell: powershell
-
     - name: Upload NetShiftSetup.msi artifact
       uses: actions/upload-artifact@v4
       with:
@@ -289,29 +209,6 @@ jobs:
         environment_name: PROD
         signing_method: v2
         malware_block: false
-
-    - name: Debug signing NetShiftInstaller
-      if: failure()
-      run: |
-        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to get an access token from SSL.com..."
-        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        $body = @{
-          grant_type = "password"
-          username = "${{ secrets.CODESIGN_USERNAME }}"
-          password = "${{ secrets.CODESIGN_PASSWORD }}"
-          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
-        }
-        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
-        if ($response) {
-          $token = ($response.Content | ConvertFrom-Json).access_token
-          echo "Access token retrieved successfully."
-          echo "Attempting to list credentials with access token..."
-          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
-        } else {
-          echo "Failed to retrieve access token."
-        }
-      shell: powershell
 
     - name: Upload NetShiftInstaller.exe artifact
       uses: actions/upload-artifact@v4
