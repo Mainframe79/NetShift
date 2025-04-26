@@ -180,25 +180,7 @@ jobs:
           path: ${{ env.ARTIFACTS_DIR }}\NetShiftSetup.exe
           retention-days: 7
 
-      - name: Build NetShiftInstaller
-        run: msbuild "${{ env.SolutionPath }}" /p:Configuration=Release /t:NetShiftInstaller
-
-      - name: Sign NetShiftInstaller.exe
-        id: sign_netshift_installer
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftInstallerExe }}
-          output_path: ${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
-
-      - name: Build NetShiftInstaller.exe from Bundle.wxs
+       - name: Build NetShiftInstaller.exe from Bundle.wxs
         run: |
           & tools\wix\wix.exe build NetShiftSetup\Bundle.wxs -o NetShiftSetup\bin\x64\Release\NetShiftInstaller.exe
 
