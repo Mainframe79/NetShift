@@ -14,14 +14,13 @@ on:
 
 permissions:
   actions: read
-  contents: read
+  contents: write
   packages: write
   id-token: write
 
 jobs:
   build-sign-release:
     runs-on: windows-latest
-
     env:
       BASE_DIR: ${{ github.workspace }}
       ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
@@ -29,38 +28,32 @@ jobs:
       SetupPath: ${{ github.workspace }}\NetShiftSetup
       NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
       NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
-      NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release
-      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
+      NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows
+      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
       NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
       NetShiftInstallerExe: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftInstaller.exe
       WIX_PATH: ${{ github.workspace }}\tools\wix
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Unblock WiX Executables
+      - name: Ensure WiX tools available
         run: |
-          Get-ChildItem "${{ env.WIX_PATH }}" -Filter *.exe | Unblock-File
+          echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: powershell
-
-      - name: Restore NuGet Packages
-        run: nuget restore "${{ env.SolutionPath }}"
 
       - name: Create artifacts directory
         run: New-Item -ItemType Directory -Force -Path "${{ env.ARTIFACTS_DIR }}"
         shell: powershell
 
-      - name: Build NetShift Project
-        run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
+      - name: Restore NuGet packages
+        run: nuget restore "${{ env.SolutionPath }}"
 
-      - name: Verify NetShift.exe built
-        run: |
-          if (-not (Test-Path "${{ env.NetShiftExe }}")) { throw "NetShift.exe not found!" }
-        shell: powershell
+      - name: Build NetShift project
+        run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
 
       - name: Sign NetShift.exe
         uses: sslcom/esigner-codesign@develop
@@ -71,23 +64,17 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftExe }}
-          output_path: ${{ env.ARTIFACTS_DIR }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
 
-      - name: Copy signed NetShift.exe back
-        run: |
-          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" -Destination "${{ env.NetShiftExe }}" -Force
+      - name: Replace unsigned NetShift.exe with signed one
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" "${{ env.NetShiftExe }}" -Force
         shell: powershell
 
-      - name: Build NetShiftService Project
+      - name: Build NetShiftService project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
-
-      - name: Verify NetShiftService.exe built
-        run: |
-          if (-not (Test-Path "${{ env.NetShiftServiceExe }}")) { throw "NetShiftService.exe not found!" }
-        shell: powershell
 
       - name: Sign NetShiftService.exe
         uses: sslcom/esigner-codesign@develop
@@ -98,39 +85,28 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftServiceExe }}
-          output_path: ${{ env.ARTIFACTS_DIR }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
 
-      - name: Copy signed NetShiftService.exe back
-        run: |
-          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" -Destination "${{ env.NetShiftServiceExe }}" -Force
+      - name: Replace unsigned NetShiftService.exe with signed one
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
         shell: powershell
 
-      - name: Copy signed NetShiftService.exe into Setup
-        run: |
-          Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
+      - name: Copy signed NetShiftService.exe into Setup directory
+        run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
         shell: powershell
 
-      - name: Harvest NetShift Files (heat.exe)
+      - name: Run heat.exe to regenerate NetShiftFiles.wxs
         run: |
           & "${{ env.WIX_PATH }}\heat.exe" dir "${{ env.NetShiftBin }}" `
-            -dr APPFOLDER -cg NetShiftFiles -gg -scom -sreg -srd -template:fragment `
-            -out "${{ env.SetupPath }}\NetShiftFiles.wxs"
+          -dr APPFOLDER -cg NetShiftFiles -gg -scom -sreg -srd -template fragment `
+          -out "${{ env.SetupPath }}\NetShiftFiles.wxs"
         shell: powershell
 
-      - name: Build NetShiftSetup.msi (Package.wxs + NetShiftFiles.wxs)
-        run: |
-          & "${{ env.WIX_PATH }}\wix.exe" build `
-            NetShiftSetup\Package.wxs `
-            NetShiftSetup\NetShiftFiles.wxs `
-            -o NetShiftSetup\bin\Release\NetShiftSetup.msi
-        shell: powershell
-
-      - name: Verify NetShiftSetup.msi built
-        run: |
-          if (-not (Test-Path "${{ env.NetShiftSetupMsi }}")) { throw "NetShiftSetup.msi not found!" }
+      - name: Build NetShiftSetup.msi
+        run: & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftSetup.msi"
         shell: powershell
 
       - name: Sign NetShiftSetup.msi
@@ -142,24 +118,17 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftSetupMsi }}
-          output_path: ${{ env.ARTIFACTS_DIR }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
 
-      - name: Copy signed NetShiftSetup.msi back
-        run: |
-          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" -Destination "${{ env.NetShiftSetupMsi }}" -Force
+      - name: Replace unsigned MSI with signed one
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" "${{ env.NetShiftSetupMsi }}" -Force
         shell: powershell
 
-      - name: Build NetShiftInstaller.exe (Bundle)
-        run: |
-          & "${{ env.WIX_PATH }}\wix.exe" build NetShiftSetup\Bundle.wxs -o NetShiftSetup\bin\Release\NetShiftInstaller.exe
-        shell: powershell
-
-      - name: Verify NetShiftInstaller.exe built
-        run: |
-          if (-not (Test-Path "${{ env.NetShiftInstallerExe }}")) { throw "NetShiftInstaller.exe not found!" }
+      - name: Build NetShiftInstaller.exe from Bundle.wxs
+        run: & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftInstaller.exe"
         shell: powershell
 
       - name: Sign NetShiftInstaller.exe
@@ -171,31 +140,26 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftInstallerExe }}
-          output_path: ${{ env.ARTIFACTS_DIR }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
 
-      - name: Copy signed NetShiftInstaller.exe back
-        run: |
-          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe" -Destination "${{ env.NetShiftInstallerExe }}" -Force
-        shell: powershell
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+  release:
+    needs: build-sign-release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
-          name: NetShift-Build
-          path: |
-            NetShiftSetup\bin\Release\NetShiftSetup.msi
-            NetShiftSetup\bin\Release\NetShiftInstaller.exe
+          path: artifacts
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
           files: |
-            NetShiftSetup\bin\Release\NetShiftSetup.msi
-            NetShiftSetup\bin\Release\NetShiftInstaller.exe
+            artifacts/NetShiftInstaller.exe
+            artifacts/NetShiftSetup.msi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
