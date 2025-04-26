@@ -11,17 +11,20 @@ on:
       - 'readme.md'
       - '**/README.md'
       - '**/readme.md'
+      - '.github/workflows/*.yml'
 
 jobs:
   build-sign-release:
     runs-on: windows-latest
     env:
+      BASE_DIR: D:\a\NetShift-Public\NetShift-Public
+      NetShiftBin: D:\a\NetShift-Public\NetShift-Public\NetShift\bin\Release\net8.0-windows
+      SetupPath: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup
       SolutionPath: D:\a\NetShift-Public\NetShift-Public\NetShift-Public.sln
       NetShiftExe: D:\a\NetShift-Public\NetShift-Public\NetShift\bin\Release\net8.0-windows\NetShift.exe
       NetShiftServiceExe: D:\a\NetShift-Public\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe
       NetShiftSetupMsi: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi
       NetShiftInstallerExe: D:\a\NetShift-Public\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
-      SetupPath: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup
 
     steps:
     - name: Checkout repository
@@ -64,9 +67,10 @@ jobs:
 
     - name: Run heat.exe to harvest files
       run: |
-        & "C:\Program Files\WiX Toolset v5.0\bin\x64\heat.exe" dir "${{ env.NetShiftExe | Split-Path -Parent }}" `
+        & "C:\Program Files\WiX Toolset v5.0\bin\x64\heat.exe" dir "${{ env.NetShiftBin }}" `
         -dr APPFOLDER -cg NetShiftFiles -gg -scom -sreg -srd -template:fragment `
         -out "${{ env.SetupPath }}\NetShiftFiles.wxs"
+
 
     - name: Build NetShiftSetup (MSI)
       run: msbuild NetShiftSetup\NetShiftSetup.wixproj /p:Configuration=Release
