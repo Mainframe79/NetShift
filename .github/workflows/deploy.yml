@@ -25,12 +25,12 @@ jobs:
     env:
       BASE_DIR: ${{ github.workspace }}  # D:\a\NetShift\NetShift
       ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
-      NetShiftBin: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows
+      NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows
       SetupPath: ${{ github.workspace }}\NetShiftSetup
       SolutionPath: ${{ github.workspace }}\NetShift.sln
-      NetShiftExe: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows\NetShift.exe
-      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\Release\NetShiftService.exe
-      NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
+      NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\NetShift.exe
+      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
+      NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\x64\Release\NetShiftSetup.msi
       NetShiftInstallerExe: ${{ github.workspace }}\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
       WIX_PATH: ${{ github.workspace }}\tools\wix
 
@@ -53,6 +53,10 @@ jobs:
         echo "WiX tools directory contents:"
         dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
         dir "${{ env.WIX_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
+        echo "Solution file contents:"
+        type "${{ env.SolutionPath }}"
+        echo "NetShift.Models project file contents:"
+        type "${{ github.workspace }}\NetShift.Models\NetShift.Models.csproj" -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Setup MSBuild
@@ -86,8 +90,19 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config', '**/*.csproj') }}
         restore-keys: ${{ runner.os }}-nuget-
 
-    - name: Build NetShift
-      run: msbuild NetShift\NetShift.csproj /p:Configuration=Release
+    - name: Build Solution
+      run: msbuild "${{ env.SolutionPath }}" /p:Configuration=Release /p:Platform=x64 /v:diagnostic
+
+    - name: Debug build output
+      run: |
+        echo "Checking NetShift.exe path:"
+        dir "${{ env.NetShiftBin }}" -ErrorAction SilentlyContinue
+        if (Test-Path "${{ env.NetShiftExe }}") {
+          echo "NetShift.exe found at ${{ env.NetShiftExe }}"
+        } else {
+          throw "NetShift.exe not found at ${{ env.NetShiftExe }}"
+        }
+      shell: powershell
 
     - name: Sign NetShift.exe
       id: sign_netshift
@@ -137,8 +152,16 @@ jobs:
     - name: Copy signed NetShift.exe to NetShiftBin
       run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe\NetShift.exe" "${{ env.NetShiftExe }}" -Force
 
-    - name: Build NetShiftService
-      run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release
+    - name: Debug build output for NetShiftService
+      run: |
+        echo "Checking NetShiftService.exe path:"
+        dir "${{ github.workspace }}\NetShiftService\bin\x64\Release" -ErrorAction SilentlyContinue
+        if (Test-Path "${{ env.NetShiftServiceExe }}") {
+          echo "NetShiftService.exe found at ${{ env.NetShiftServiceExe }}"
+        } else {
+          throw "NetShiftService.exe not found at ${{ env.NetShiftServiceExe }}"
+        }
+      shell: powershell
 
     - name: Sign NetShiftService.exe
       id: sign_netshift_service
