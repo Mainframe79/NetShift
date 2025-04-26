@@ -32,7 +32,7 @@ jobs:
       NetShiftServiceExe: D:\a\NetShift-Public\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe
       NetShiftSetupMsi: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi
       NetShiftInstallerExe: D:\a\NetShift-Public\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
-      WIX_PATH: C:\Program Files\WiX Toolset v5.0\bin
+      WIX_PATH: D:\a\NetShift-Public\NetShift-Public\tools\wix
 
     steps:
     - name: Checkout repository
@@ -45,32 +45,7 @@ jobs:
       with:
         msbuild-version: '17.8'
 
-    - name: Debug WiX download URL
-      run: |
-        Invoke-WebRequest -Method Head -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix-cli-x64.msi"
-      shell: powershell
-
-    - name: Install WiX Toolset v5
-      run: |
-        $retries = 3
-        $success = $false
-        for ($i = 1; $i -le $retries; $i++) {
-          try {
-            Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix-cli-x64.msi" -OutFile "wix-cli-x64.msi" -ErrorAction Stop
-            $success = $true
-            break
-          } catch {
-            echo "Attempt $i failed: $_"
-            if ($i -eq $retries) { throw "Failed to download WiX MSI after $retries attempts" }
-            Start-Sleep -Seconds 10
-          }
-        }
-        msiexec /i wix-cli-x64.msi /quiet /norestart
-        Remove-Item "wix-cli-x64.msi"
-        echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      shell: powershell
-
-    - name: Verify WiX installation
+    - name: Verify WiX tools
       run: |
         dir "${{ env.WIX_PATH }}"
         & "${{ env.WIX_PATH }}\heat.exe" --version
@@ -222,7 +197,8 @@ jobs:
       run: |
         echo "Workflow failed. Checking environment..."
         dir "${{ env.WIX_PATH }}"
-        Invoke-WebRequest -Method Head -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix-cli-x64.msi"
+        dir "${{ env.NetShiftBin }}"
+        dir "${{ env.SetupPath }}"
         & "${{ env.WIX_PATH }}\heat.exe" --version
       shell: powershell
 
