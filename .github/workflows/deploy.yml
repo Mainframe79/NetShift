@@ -19,7 +19,7 @@ permissions:
   id-token: write
 
 jobs:
-  build-sign-release:
+  build-release:
     runs-on: windows-latest
     env:
       BASE_DIR: ${{ github.workspace }}
@@ -55,46 +55,46 @@ jobs:
       - name: Build NetShift project
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
 
-      - name: Sign NetShift.exe
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftExe }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
+      # - name: Sign NetShift.exe
+      #   uses: sslcom/esigner-codesign@develop
+      #   with:
+      #     command: sign
+      #     username: ${{ secrets.CODESIGN_USERNAME }}
+      #     password: ${{ secrets.CODESIGN_PASSWORD }}
+      #     credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+      #     totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+      #     file_path: ${{ env.NetShiftExe }}
+      #     output_dir_path: ${{ env.ARTIFACTS_DIR }}
+      #     environment_name: PROD
+      #     signing_method: v2
+      #     malware_block: false
 
-      - name: Replace unsigned NetShift.exe with signed one
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" "${{ env.NetShiftExe }}" -Force
-        shell: powershell
+      # - name: Replace unsigned NetShift.exe with signed one
+      #   run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" "${{ env.NetShiftExe }}" -Force
+      #   shell: powershell
 
       - name: Build NetShiftService project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
 
-      - name: Sign NetShiftService.exe
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftServiceExe }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
+      # - name: Sign NetShiftService.exe
+      #   uses: sslcom/esigner-codesign@develop
+      #   with:
+      #     command: sign
+      #     username: ${{ secrets.CODESIGN_USERNAME }}
+      #     password: ${{ secrets.CODESIGN_PASSWORD }}
+      #     credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+      #     totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+      #     file_path: ${{ env.NetShiftServiceExe }}
+      #     output_dir_path: ${{ env.ARTIFACTS_DIR }}
+      #     environment_name: PROD
+      #     signing_method: v2
+      #     malware_block: false
 
-      - name: Replace unsigned NetShiftService.exe with signed one
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
-        shell: powershell
+      # - name: Replace unsigned NetShiftService.exe with signed one
+      #   run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
+      #   shell: powershell
 
-      - name: Copy signed NetShiftService.exe into Setup directory
+      - name: Copy NetShiftService.exe into Setup directory
         run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
         shell: powershell
 
@@ -106,49 +106,49 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftSetup.msi
-        run: | 
+        run: |
           & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftSetup.msi"
         shell: powershell
 
-      - name: Sign NetShiftSetup.msi
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftSetupMsi }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
+      # - name: Sign NetShiftSetup.msi
+      #   uses: sslcom/esigner-codesign@develop
+      #   with:
+      #     command: sign
+      #     username: ${{ secrets.CODESIGN_USERNAME }}
+      #     password: ${{ secrets.CODESIGN_PASSWORD }}
+      #     credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+      #     totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+      #     file_path: ${{ env.NetShiftSetupMsi }}
+      #     output_dir_path: ${{ env.ARTIFACTS_DIR }}
+      #     environment_name: PROD
+      #     signing_method: v2
+      #     malware_block: false
 
-      - name: Replace unsigned MSI with signed one
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" "${{ env.NetShiftSetupMsi }}" -Force
-        shell: powershell
+      # - name: Replace unsigned MSI with signed one
+      #   run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" "${{ env.NetShiftSetupMsi }}" -Force
+      #   shell: powershell
 
       - name: Build NetShiftInstaller.exe from Bundle.wxs
         run: |
           & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftInstaller.exe"
         shell: powershell
 
-      - name: Sign NetShiftInstaller.exe
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftInstallerExe }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
+      # - name: Sign NetShiftInstaller.exe
+      #   uses: sslcom/esigner-codesign@develop
+      #   with:
+      #     command: sign
+      #     username: ${{ secrets.CODESIGN_USERNAME }}
+      #     password: ${{ secrets.CODESIGN_PASSWORD }}
+      #     credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+      #     totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+      #     file_path: ${{ env.NetShiftInstallerExe }}
+      #     output_dir_path: ${{ env.ARTIFACTS_DIR }}
+      #     environment_name: PROD
+      #     signing_method: v2
+      #     malware_block: false
 
   release:
-    needs: build-sign-release
+    needs: build-release
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
