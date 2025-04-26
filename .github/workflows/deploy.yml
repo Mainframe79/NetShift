@@ -72,16 +72,18 @@ jobs:
       run: msbuild NetShift\NetShift.csproj /p:Configuration=Release
 
     - name: Sign NetShift.exe
-      uses: sslcom/esigner-codesign@v1
+      uses: sslcom/esigner-codesign@develop
       with:
+        command: sign
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
         credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
         totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-        file: ${{ env.NetShiftExe }}
+        file_path: ${{ env.NetShiftExe }}
         output_path: ${{ env.ARTIFACTS_DIR }}\NetShift.exe
-      env:
-        ENVIRONMENT_NAME: PROD
+        environment_name: PROD
+        signing_method: v2
+        malware_block: false
 
     - name: Verify NetShift.exe signature
       run: |
@@ -102,16 +104,18 @@ jobs:
       run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release
 
     - name: Sign NetShiftService.exe
-      uses: sslcom/esigner-codesign@v1
+      uses: sslcom/esigner-codesign@develop
       with:
+        command: sign
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
         credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
         totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-        file: ${{ env.NetShiftServiceExe }}
+        file_path: ${{ env.NetShiftServiceExe }}
         output_path: ${{ env.ARTIFACTS_DIR }}\NetShiftService.exe
-      env:
-        ENVIRONMENT_NAME: PROD
+        environment_name: PROD
+        signing_method: v2
+        malware_block: false
 
     - name: Verify NetShiftService.exe signature
       run: |
@@ -138,16 +142,18 @@ jobs:
       run: msbuild NetShiftSetup\NetShiftSetup.wixproj /p:Configuration=Release
 
     - name: Sign NetShiftSetup.msi
-      uses: sslcom/esigner-codesign@v1
+      uses: sslcom/esigner-codesign@develop
       with:
+        command: sign
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
         credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
         totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-        file: ${{ env.NetShiftSetupMsi }}
+        file_path: ${{ env.NetShiftSetupMsi }}
         output_path: ${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi
-      env:
-        ENVIRONMENT_NAME: PROD
+        environment_name: PROD
+        signing_method: v2
+        malware_block: false
 
     - name: Verify NetShiftSetup.msi signature
       run: |
@@ -165,16 +171,18 @@ jobs:
       run: msbuild NetShiftInstaller\NetShiftInstaller.wixproj /p:Configuration=Release
 
     - name: Sign NetShiftInstaller.exe
-      uses: sslcom/esigner-codesign@v1
+      uses: sslcom/esigner-codesign@develop
       with:
+        command: sign
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
         credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
         totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-        file: ${{ env.NetShiftInstallerExe }}
+        file_path: ${{ env.NetShiftInstallerExe }}
         output_path: ${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe
-      env:
-        ENVIRONMENT_NAME: PROD
+        environment_name: PROD
+        signing_method: v2
+        malware_block: false
 
     - name: Verify NetShiftInstaller.exe signature
       run: |
@@ -191,8 +199,8 @@ jobs:
     - name: Debug action download failure
       if: failure()
       run: |
-        echo "Failed to download sslcom/esigner-codesign@v1"
-        curl -I https://api.github.com/repos/sslcom/esigner-codesign/zipball/v1
+        echo "Failed to download sslcom/esigner-codesign@develop"
+        curl -I https://api.github.com/repos/sslcom/esigner-codesign/zipball/develop
       shell: powershell
 
   release:
