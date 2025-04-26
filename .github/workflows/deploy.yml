@@ -63,8 +63,14 @@ jobs:
         dir "${{ env.WIX_PATH }}"
         echo "Checking heat.exe version:"
         & "${{ env.WIX_PATH }}\heat.exe" -? | Select-String "WiX Toolset Harvester version"
-        if (-Not (Test-Path "${{ env.WIX_PATH }}\candle.exe")) { throw "candle.exe not found in tools/wix" }
-        if (-Not (Test-Path "${{ env.WIX_PATH }}\light.exe")) { throw "light.exe not found in tools/wix" }
+        if (-Not (Test-Path "${{ env.WIX_PATH }}\wix.exe")) { throw "wix.exe not found in tools/wix" }
+        echo "Checking wix.exe version:"
+        & "${{ env.WIX_PATH }}\wix.exe" --version
+      shell: powershell
+
+    - name: Add WiX tools to PATH
+      run: |
+        echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       shell: powershell
 
     - name: Create artifacts directory
@@ -218,6 +224,7 @@ jobs:
         dir "${{ env.NetShiftBin }}" -ErrorAction SilentlyContinue
         dir "${{ env.SetupPath }}" -ErrorAction SilentlyContinue
         & "${{ env.WIX_PATH }}\heat.exe" -? -ErrorAction SilentlyContinue
+        & "${{ env.WIX_PATH }}\wix.exe" --version -ErrorAction SilentlyContinue
       shell: powershell
 
   release:
@@ -226,7 +233,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download- WixToolset.Core.dllartifact@v4
       with:
         path: artifacts
 
