@@ -66,10 +66,15 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftExe }}
-          output_path: ${{ env.NetShiftBin }}
+          output_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
+
+      - name: Copy signed NetShift.exe back
+        run: |
+          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" -Destination "${{ env.NetShiftExe }}" -Force
+        shell: powershell
 
       - name: Build NetShiftService Project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
@@ -83,10 +88,15 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftServiceExe }}
-          output_path: ${{ env.NetShiftServiceBin }}
+          output_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
+
+      - name: Copy signed NetShiftService.exe back
+        run: |
+          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" -Destination "${{ env.NetShiftServiceExe }}" -Force
+        shell: powershell
 
       - name: Copy signed NetShiftService.exe into Setup
         run: |
@@ -114,10 +124,15 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftSetupMsi }}
-          output_path: ${{ github.workspace }}\NetShiftSetup\bin\Release
+          output_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
+
+      - name: Copy signed NetShiftSetup.msi back
+        run: |
+          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" -Destination "${{ env.NetShiftSetupMsi }}" -Force
+        shell: powershell
 
       - name: Build NetShiftInstaller.exe
         run: |
@@ -133,10 +148,15 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftInstallerExe }}
-          output_path: ${{ github.workspace }}\NetShiftSetup\bin\Release
+          output_path: ${{ env.ARTIFACTS_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
+
+      - name: Copy signed NetShiftInstaller.exe back
+        run: |
+          Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe" -Destination "${{ env.NetShiftInstallerExe }}" -Force
+        shell: powershell
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
