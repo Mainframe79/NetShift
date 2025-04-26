@@ -57,6 +57,11 @@ jobs:
       - name: Build NetShift Project
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
 
+      - name: Verify NetShift.exe built
+        run: |
+          if (-not (Test-Path "${{ env.NetShiftExe }}")) { throw "NetShift.exe not found!" }
+        shell: powershell
+
       - name: Sign NetShift.exe
         uses: sslcom/esigner-codesign@develop
         with:
@@ -78,6 +83,11 @@ jobs:
 
       - name: Build NetShiftService Project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+
+      - name: Verify NetShiftService.exe built
+        run: |
+          if (-not (Test-Path "${{ env.NetShiftServiceExe }}")) { throw "NetShiftService.exe not found!" }
+        shell: powershell
 
       - name: Sign NetShiftService.exe
         uses: sslcom/esigner-codesign@develop
@@ -115,6 +125,11 @@ jobs:
           & "${{ env.WIX_PATH }}\wix.exe" build NetShiftSetup\Package.wxs -o NetShiftSetup\bin\Release\NetShiftSetup.msi
         shell: powershell
 
+      - name: Verify NetShiftSetup.msi built
+        run: |
+          if (-not (Test-Path "${{ env.NetShiftSetupMsi }}")) { throw "NetShiftSetup.msi not found!" }
+        shell: powershell
+
       - name: Sign NetShiftSetup.msi
         uses: sslcom/esigner-codesign@develop
         with:
@@ -137,6 +152,11 @@ jobs:
       - name: Build NetShiftInstaller.exe
         run: |
           & "${{ env.WIX_PATH }}\wix.exe" build NetShiftSetup\Bundle.wxs -o NetShiftSetup\bin\Release\NetShiftInstaller.exe
+        shell: powershell
+
+      - name: Verify NetShiftInstaller.exe built
+        run: |
+          if (-not (Test-Path "${{ env.NetShiftInstallerExe }}")) { throw "NetShiftInstaller.exe not found!" }
         shell: powershell
 
       - name: Sign NetShiftInstaller.exe
