@@ -27,12 +27,13 @@ jobs:
       ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
       NetShiftBin: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows
       SetupPath: ${{ github.workspace }}\NetShiftSetup
-      SolutionPath: ${{ github.workspace }}\NetShift.sln
+      SolutionPath: ${{ github.workspace }}\NetShift-Public.sln
       NetShiftExe: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows\NetShift.exe
       NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\Release\NetShiftService.exe
       NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
       NetShiftInstallerExe: ${{ github.workspace }}\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
       WIX_PATH: ${{ github.workspace }}\tools\wix
+      SIGNTOOL_PATH: ${{ github.workspace }}\tools\signtool
 
     steps:
     - name: Checkout repository
@@ -53,6 +54,9 @@ jobs:
         echo "WiX tools directory contents:"
         dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
         dir "${{ env.WIX_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
+        echo "SignTool directory contents:"
+        dir "${{ env.SIGNTOOL_PATH }}" -ErrorAction SilentlyContinue
+        dir "${{ env.SIGNTOOL_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Setup MSBuild
@@ -71,6 +75,17 @@ jobs:
     - name: Add WiX tools to PATH
       run: |
         echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: powershell
+
+    - name: Verify SignTool
+      run: |
+        dir "${{ env.SIGNTOOL_PATH }}"
+        if (-Not (Test-Path "${{ env.SIGNTOOL_PATH }}\signtool.exe")) { throw "signtool.exe not found in tools/signtool" }
+      shell: powershell
+
+    - name: Add SignTool to PATH
+      run: |
+        echo "${{ env.SIGNTOOL_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       shell: powershell
 
     - name: Create artifacts directory
@@ -103,6 +118,14 @@ jobs:
         signing_method: v2
         malware_block: false
 
+    - name: Debug signing
+      if: failure()
+      run: |
+        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
+        echo "Attempting to list credentials with provided username and password..."
+        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+      shell: powershell
+
     - name: Verify NetShift.exe signature
       run: |
         signtool verify /pa "${{ env.ARTIFACTS_DIR }}\NetShift.exe"
@@ -134,6 +157,14 @@ jobs:
         environment_name: PROD
         signing_method: v2
         malware_block: false
+
+    - name: Debug signing NetShiftService
+      if: failure()
+      run: |
+        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
+        echo "Attempting to list credentials with provided username and password..."
+        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+      shell: powershell
 
     - name: Verify NetShiftService.exe signature
       run: |
@@ -173,6 +204,14 @@ jobs:
         signing_method: v2
         malware_block: false
 
+    - name: Debug signing NetShiftSetup
+      if: failure()
+      run: |
+        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
+        echo "Attempting to list credentials with provided username and password..."
+        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+      shell: powershell
+
     - name: Verify NetShiftSetup.msi signature
       run: |
         signtool verify /pa "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi"
@@ -202,6 +241,14 @@ jobs:
         signing_method: v2
         malware_block: false
 
+    - name: Debug signing NetShiftInstaller
+      if: failure()
+      run: |
+        echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
+        echo "Attempting to list credentials with provided username and password..."
+        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+      shell: powershell
+
     - name: Verify NetShiftInstaller.exe signature
       run: |
         signtool verify /pa "${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe"
@@ -221,6 +268,8 @@ jobs:
         dir "${{ env.BASE_DIR }}"
         dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
         dir "${{ env.WIX_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
+        dir "${{ env.SIGNTOOL_PATH }}" -ErrorAction SilentlyContinue
+        dir "${{ env.SIGNTOOL_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
         dir "${{ env.NetShiftBin }}" -ErrorAction SilentlyContinue
         dir "${{ env.SetupPath }}" -ErrorAction SilentlyContinue
         & "${{ env.WIX_PATH }}\heat.exe" -? -ErrorAction SilentlyContinue
@@ -233,7 +282,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
     - name: Download artifacts
-      uses: actions/download- WixToolset.Core.dllartifact@v4
+      uses: actions/download-artifact@v4
       with:
         path: artifacts
 
