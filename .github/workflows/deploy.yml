@@ -77,17 +77,17 @@ jobs:
         echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       shell: powershell
 
+    - name: Add SignTool to PATH
+      run: |
+        echo "${{ env.SIGNTOOL_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: powershell
+
     - name: Verify SignTool
       run: |
         dir "${{ env.SIGNTOOL_PATH }}"
         if (-Not (Test-Path "${{ env.SIGNTOOL_PATH }}\signtool.exe")) { throw "signtool.exe not found in tools/signtool" }
         echo "Checking signtool.exe version:"
         signtool | Select-String "Version"
-      shell: powershell
-
-    - name: Add SignTool to PATH
-      run: |
-        echo "${{ env.SIGNTOOL_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       shell: powershell
 
     - name: Create artifacts directory
@@ -107,6 +107,7 @@ jobs:
       run: msbuild NetShift\NetShift.csproj /p:Configuration=Release
 
     - name: Sign NetShift.exe
+      id: sign_netshift
       uses: sslcom/esigner-codesign@develop
       with:
         command: sign
@@ -124,9 +125,24 @@ jobs:
       if: failure()
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to list credentials with provided username and password..."
+        echo "Signing step output: ${{ steps.sign_netshift.outputs.output }}"
+        echo "Attempting to get an access token from SSL.com..."
         $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
+        $body = @{
+          grant_type = "password"
+          username = "${{ secrets.CODESIGN_USERNAME }}"
+          password = "${{ secrets.CODESIGN_PASSWORD }}"
+          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
+        }
+        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
+        if ($response) {
+          $token = ($response.Content | ConvertFrom-Json).access_token
+          echo "Access token retrieved successfully."
+          echo "Attempting to list credentials with access token..."
+          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
+        } else {
+          echo "Failed to retrieve access token."
+        }
       shell: powershell
 
     - name: Verify NetShift.exe signature
@@ -148,6 +164,7 @@ jobs:
       run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release
 
     - name: Sign NetShiftService.exe
+      id: sign_netshift_service
       uses: sslcom/esigner-codesign@develop
       with:
         command: sign
@@ -165,9 +182,24 @@ jobs:
       if: failure()
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to list credentials with provided username and password..."
+        echo "Signing step output: ${{ steps.sign_netshift_service.outputs.output }}"
+        echo "Attempting to get an access token from SSL.com..."
         $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
+        $body = @{
+          grant_type = "password"
+          username = "${{ secrets.CODESIGN_USERNAME }}"
+          password = "${{ secrets.CODESIGN_PASSWORD }}"
+          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
+        }
+        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
+        if ($response) {
+          $token = ($response.Content | ConvertFrom-Json).access_token
+          echo "Access token retrieved successfully."
+          echo "Attempting to list credentials with access token..."
+          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
+        } else {
+          echo "Failed to retrieve access token."
+        }
       shell: powershell
 
     - name: Verify NetShiftService.exe signature
@@ -195,6 +227,7 @@ jobs:
       run: msbuild NetShiftSetup\NetShiftSetup.wixproj /p:Configuration=Release
 
     - name: Sign NetShiftSetup.msi
+      id: sign_netshift_setup
       uses: sslcom/esigner-codesign@develop
       with:
         command: sign
@@ -212,9 +245,24 @@ jobs:
       if: failure()
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to list credentials with provided username and password..."
+        echo "Signing step output: ${{ steps.sign_netshift_setup.outputs.output }}"
+        echo "Attempting to get an access token from SSL.com..."
         $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
+        $body = @{
+          grant_type = "password"
+          username = "${{ secrets.CODESIGN_USERNAME }}"
+          password = "${{ secrets.CODESIGN_PASSWORD }}"
+          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
+        }
+        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
+        if ($response) {
+          $token = ($response.Content | ConvertFrom-Json).access_token
+          echo "Access token retrieved successfully."
+          echo "Attempting to list credentials with access token..."
+          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
+        } else {
+          echo "Failed to retrieve access token."
+        }
       shell: powershell
 
     - name: Verify NetShiftSetup.msi signature
@@ -233,6 +281,7 @@ jobs:
       run: msbuild NetShiftInstaller\NetShiftInstaller.wixproj /p:Configuration=Release
 
     - name: Sign NetShiftInstaller.exe
+      id: sign_netshift_installer
       uses: sslcom/esigner-codesign@develop
       with:
         command: sign
@@ -250,9 +299,24 @@ jobs:
       if: failure()
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
-        echo "Attempting to list credentials with provided username and password..."
+        echo "Signing step output: ${{ steps.sign_netshift_installer.outputs.output }}"
+        echo "Attempting to get an access token from SSL.com..."
         $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
-        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
+        $body = @{
+          grant_type = "password"
+          username = "${{ secrets.CODESIGN_USERNAME }}"
+          password = "${{ secrets.CODESIGN_PASSWORD }}"
+          totp = (Invoke-Expression "oathtool --totp --base32 '${{ secrets.CODESIGN_TOTP_SECRET }}'")
+        }
+        $response = Invoke-WebRequest -Uri https://login.ssl.com/oauth2/token -Method Post -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
+        if ($response) {
+          $token = ($response.Content | ConvertFrom-Json).access_token
+          echo "Access token retrieved successfully."
+          echo "Attempting to list credentials with access token..."
+          Invoke-WebRequest -Uri https://cs.ssl.com/v2/credential/list -Headers @{ "Authorization" = "Bearer $token" } -ErrorAction SilentlyContinue
+        } else {
+          echo "Failed to retrieve access token."
+        }
       shell: powershell
 
     - name: Verify NetShiftInstaller.exe signature
