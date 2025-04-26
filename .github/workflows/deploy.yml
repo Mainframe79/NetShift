@@ -8,7 +8,6 @@ on:
       - 'v*.*.*'
     paths:
       - '**'
-      - '!.github/workflows/*.yml'
       - '!README.md'
       - '!readme.md'
       - '!**/README.md'
