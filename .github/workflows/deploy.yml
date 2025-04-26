@@ -32,7 +32,7 @@ jobs:
       NetShiftServiceExe: D:\a\NetShift-Public\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe
       NetShiftSetupMsi: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi
       NetShiftInstallerExe: D:\a\NetShift-Public\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
-      WIX_PATH: C:\wix
+      WIX_PATH: C:\Program Files\WiX Toolset v5.0\bin
 
     steps:
     - name: Checkout repository
@@ -47,7 +47,7 @@ jobs:
 
     - name: Debug WiX download URL
       run: |
-        curl -I https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix502-binaries.zip
+        Invoke-WebRequest -Method Head -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix-cli-x64.msi"
       shell: powershell
 
     - name: Install WiX Toolset v5
@@ -56,17 +56,17 @@ jobs:
         $success = $false
         for ($i = 1; $i -le $retries; $i++) {
           try {
-            Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix502-binaries.zip" -OutFile "wix.zip" -ErrorAction Stop
+            Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix-cli-x64.msi" -OutFile "wix-cli-x64.msi" -ErrorAction Stop
             $success = $true
             break
           } catch {
             echo "Attempt $i failed: $_"
-            if ($i -eq $retries) { throw "Failed to download WiX after $retries attempts" }
+            if ($i -eq $retries) { throw "Failed to download WiX MSI after $retries attempts" }
             Start-Sleep -Seconds 10
           }
         }
-        Expand-Archive -Path "wix.zip" -DestinationPath "${{ env.WIX_PATH }}"
-        Remove-Item "wix.zip"
+        msiexec /i wix-cli-x64.msi /quiet /norestart
+        Remove-Item "wix-cli-x64.msi"
         echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       shell: powershell
 
@@ -222,7 +222,7 @@ jobs:
       run: |
         echo "Workflow failed. Checking environment..."
         dir "${{ env.WIX_PATH }}"
-        curl -I https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix502-binaries.zip
+        Invoke-WebRequest -Method Head -Uri "https://github.com/wixtoolset/wix/releases/download/v5.0.2/wix-cli-x64.msi"
         & "${{ env.WIX_PATH }}\heat.exe" --version
       shell: powershell
 
