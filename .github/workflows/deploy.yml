@@ -19,21 +19,22 @@ permissions:
   id-token: write
 
 env:
-  SKIP_SIGNING: true  # 👈 FLIP THIS BETWEEN true/false
+  SIGNING_ENABLED: false # Set to true to re-enable code signing
   BASE_DIR: ${{ github.workspace }}
   ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
   SolutionPath: ${{ github.workspace }}\NetShift.sln
   SetupPath: ${{ github.workspace }}\NetShiftSetup
   NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
   NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
-  NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release
-  NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
+  NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows
+  NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
   NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
   NetShiftInstallerExe: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftInstaller.exe
   WIX_PATH: ${{ github.workspace }}\tools\wix
+  RCEDIT_PATH: ${{ github.workspace }}\tools\rcedit\rcedit-x64.exe
 
 jobs:
-  build-release:
+  build-sign-release:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -54,53 +55,43 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore "${{ env.SolutionPath }}"
 
+      - name: Fetch version from tag if present
+        id: versioning
+        run: |
+          $version = "1.0.0.0"
+          if ($env:GITHUB_REF -match 'refs/tags/v(\d+\.\d+\.\d+)') {
+            $version = "$($matches[1]).0"
+          }
+          echo "Detected version: $version"
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+        shell: powershell
+
+      - name: Download rcedit
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe" -OutFile "${{ env.RCEDIT_PATH }}"
+        shell: powershell
+
       - name: Build NetShift project
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
 
-      - name: Sign NetShift.exe
-        if: env.SKIP_SIGNING != 'true'
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftExe }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
-
-      - name: Replace NetShift.exe
-        if: env.SKIP_SIGNING != 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" "${{ env.NetShiftExe }}" -Force
+      - name: Stamp NetShift.exe with version info
+        run: |
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" `
+            --set-version-string "FileVersion" "${{ env.VERSION }}" `
+            --set-version-string "ProductVersion" "${{ env.VERSION }}"
         shell: powershell
 
       - name: Build NetShiftService project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
 
-      - name: Sign NetShiftService.exe
-        if: env.SKIP_SIGNING != 'true'
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftServiceExe }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
-
-      - name: Replace NetShiftService.exe
-        if: env.SKIP_SIGNING != 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
+      - name: Stamp NetShiftService.exe with version info
+        run: |
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" `
+            --set-version-string "FileVersion" "${{ env.VERSION }}" `
+            --set-version-string "ProductVersion" "${{ env.VERSION }}"
         shell: powershell
 
-      - name: Copy NetShiftService.exe into Setup
+      - name: Copy NetShiftService.exe into Setup directory
         run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
         shell: powershell
 
@@ -116,48 +107,21 @@ jobs:
           & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftSetup.msi"
         shell: powershell
 
-      - name: Sign NetShiftSetup.msi
-        if: env.SKIP_SIGNING != 'true'
-        uses: sslcom/esigner-codesign@develop
-        with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftSetupMsi }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
-
-      - name: Replace NetShiftSetup.msi
-        if: env.SKIP_SIGNING != 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" "${{ env.NetShiftSetupMsi }}" -Force
-        shell: powershell
-
-      - name: Build NetShiftInstaller.exe from Bundle
+      - name: Build NetShiftInstaller.exe from Bundle.wxs
         run: |
           & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftInstaller.exe"
         shell: powershell
 
-      - name: Sign NetShiftInstaller.exe
-        if: env.SKIP_SIGNING != 'true'
-        uses: sslcom/esigner-codesign@develop
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftInstallerExe }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
+          name: NetShiftArtifacts
+          path: |
+            ${{ env.NetShiftSetupMsi }}
+            ${{ env.NetShiftInstallerExe }}
 
   release:
-    needs: build-release
+    needs: build-sign-release
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -170,7 +134,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/NetShiftInstaller.exe
-            artifacts/NetShiftSetup.msi
+            artifacts/NetShiftArtifacts/NetShiftSetup.msi
+            artifacts/NetShiftArtifacts/NetShiftInstaller.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
