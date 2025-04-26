@@ -81,6 +81,8 @@ jobs:
       run: |
         dir "${{ env.SIGNTOOL_PATH }}"
         if (-Not (Test-Path "${{ env.SIGNTOOL_PATH }}\signtool.exe")) { throw "signtool.exe not found in tools/signtool" }
+        echo "Checking signtool.exe version:"
+        signtool | Select-String "Version"
       shell: powershell
 
     - name: Add SignTool to PATH
@@ -123,7 +125,8 @@ jobs:
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
         echo "Attempting to list credentials with provided username and password..."
-        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
+        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Verify NetShift.exe signature
@@ -163,7 +166,8 @@ jobs:
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
         echo "Attempting to list credentials with provided username and password..."
-        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
+        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Verify NetShiftService.exe signature
@@ -209,7 +213,8 @@ jobs:
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
         echo "Attempting to list credentials with provided username and password..."
-        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
+        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Verify NetShiftSetup.msi signature
@@ -246,7 +251,8 @@ jobs:
       run: |
         echo "Runner time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
         echo "Attempting to list credentials with provided username and password..."
-        curl -u "${{ secrets.CODESIGN_USERNAME }}:${{ secrets.CODESIGN_PASSWORD }}" https://cs.ssl.com/api/credential/list -ErrorAction SilentlyContinue
+        $cred = New-Object System.Management.Automation.PSCredential ("${{ secrets.CODESIGN_USERNAME }}", (ConvertTo-SecureString "${{ secrets.CODESIGN_PASSWORD }}" -AsPlainText -Force))
+        Invoke-WebRequest -Uri https://cs.ssl.com/api/credential/list -Credential $cred -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Verify NetShiftInstaller.exe signature
