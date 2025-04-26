@@ -14,6 +14,12 @@ on:
       - '!**/README.md'
       - '!**/readme.md'
 
+permissions:
+  actions: read
+  contents: read
+  packages: write
+  id-token: write
+
 jobs:
   build-sign:
     runs-on: windows-latest
@@ -31,9 +37,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-version: '17.8'
 
     - name: Cache WiX Toolset
       uses: actions/cache@v4
@@ -63,7 +73,7 @@ jobs:
       run: msbuild NetShift\NetShift.csproj /p:Configuration=Release
 
     - name: Sign NetShift.exe
-      uses: sslcom/actions-code-signer@v1
+      uses: sslcom/esigner-codesign@v1
       with:
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
@@ -79,11 +89,21 @@ jobs:
         signtool verify /pa "${{ env.ARTIFACTS_DIR }}\NetShift.exe"
         if ($LASTEXITCODE -ne 0) { throw "Signature verification failed for NetShift.exe" }
 
+    - name: Upload NetShift.exe artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetShiftExe
+        path: ${{ env.ARTIFACTS_DIR }}\NetShift.exe
+        retention-days: 7
+
+    - name: Copy signed NetShift.exe to NetShiftBin
+      run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" "${{ env.NetShiftExe }}" -Force
+
     - name: Build NetShiftService
       run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release
 
     - name: Sign NetShiftService.exe
-      uses: sslcom/actions-code-signer@v1
+      uses: sslcom/esigner-codesign@v1
       with:
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
@@ -99,6 +119,13 @@ jobs:
         signtool verify /pa "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe"
         if ($LASTEXITCODE -ne 0) { throw "Signature verification failed for NetShiftService.exe" }
 
+    - name: Upload NetShiftService.exe artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetShiftServiceExe
+        path: ${{ env.ARTIFACTS_DIR }}\NetShiftService.exe
+        retention-days: 7
+
     - name: Copy signed NetShiftService.exe into Setup directory
       run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.SetupPath }}" -Force
 
@@ -112,7 +139,7 @@ jobs:
       run: msbuild NetShiftSetup\NetShiftSetup.wixproj /p:Configuration=Release
 
     - name: Sign NetShiftSetup.msi
-      uses: sslcom/actions-code-signer@v1
+      uses: sslcom/esigner-codesign@v1
       with:
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
@@ -128,11 +155,18 @@ jobs:
         signtool verify /pa "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi"
         if ($LASTEXITCODE -ne 0) { throw "Signature verification failed for NetShiftSetup.msi" }
 
+    - name: Upload NetShiftSetup.msi artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetShiftSetupMsi
+        path: ${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi
+        retention-days: 7
+
     - name: Build NetShiftInstaller
       run: msbuild NetShiftInstaller\NetShiftInstaller.wixproj /p:Configuration=Release
 
     - name: Sign NetShiftInstaller.exe
-      uses: sslcom/actions-code-signer@v1
+      uses: sslcom/esigner-codesign@v1
       with:
         username: ${{ secrets.CODESIGN_USERNAME }}
         password: ${{ secrets.CODESIGN_PASSWORD }}
@@ -148,13 +182,12 @@ jobs:
         signtool verify /pa "${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe"
         if ($LASTEXITCODE -ne 0) { throw "Signature verification failed for NetShiftInstaller.exe" }
 
-    - name: Upload artifacts
+    - name: Upload NetShiftInstaller.exe artifact
       uses: actions/upload-artifact@v4
       with:
-        name: NetShiftArtifacts
-        path: |
-          ${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe
-          ${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi
+        name: NetShiftInstallerExe
+        path: ${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe
+        retention-days: 7
 
   release:
     needs: build-sign
@@ -164,14 +197,13 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
-        name: NetShiftArtifacts
         path: artifacts
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          artifacts/NetShiftInstaller.exe
-          artifacts/NetShiftSetup.msi
+          artifacts/NetShiftInstallerExe/NetShiftInstaller.exe
+          artifacts/NetShiftSetupMsi/NetShiftSetup.msi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
