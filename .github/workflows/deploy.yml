@@ -129,7 +129,8 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftInstaller.exe from Bundle.wxs
-        run: & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftInstaller.exe"
+        run: |
+          & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftInstaller.exe"
         shell: powershell
 
       - name: Sign NetShiftInstaller.exe
