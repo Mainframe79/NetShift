@@ -50,7 +50,9 @@ jobs:
         echo "Repository contents:"
         dir "${{ env.BASE_DIR }}"
         dir "${{ env.BASE_DIR }}\tools" -ErrorAction SilentlyContinue
+        echo "WiX tools directory contents:"
         dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
+        dir "${{ env.WIX_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Setup MSBuild
@@ -59,7 +61,10 @@ jobs:
     - name: Verify WiX tools
       run: |
         dir "${{ env.WIX_PATH }}"
-        & "${{ env.WIX_PATH }}\heat.exe" --version
+        echo "Checking heat.exe version:"
+        & "${{ env.WIX_PATH }}\heat.exe" -? | Select-String "WiX Toolset Harvester version"
+        if (-Not (Test-Path "${{ env.WIX_PATH }}\candle.exe")) { throw "candle.exe not found in tools/wix" }
+        if (-Not (Test-Path "${{ env.WIX_PATH }}\light.exe")) { throw "light.exe not found in tools/wix" }
       shell: powershell
 
     - name: Create artifacts directory
@@ -209,9 +214,10 @@ jobs:
         echo "Workflow failed. Checking environment..."
         dir "${{ env.BASE_DIR }}"
         dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
+        dir "${{ env.WIX_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
         dir "${{ env.NetShiftBin }}" -ErrorAction SilentlyContinue
         dir "${{ env.SetupPath }}" -ErrorAction SilentlyContinue
-        & "${{ env.WIX_PATH }}\heat.exe" --version -ErrorAction SilentlyContinue
+        & "${{ env.WIX_PATH }}\heat.exe" -? -ErrorAction SilentlyContinue
       shell: powershell
 
   release:
