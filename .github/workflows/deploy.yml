@@ -23,23 +23,23 @@ jobs:
   build-sign:
     runs-on: windows-latest
     env:
-      BASE_DIR: D:\a\NetShift-Public\NetShift-Public
-      ARTIFACTS_DIR: D:\a\NetShift-Public\NetShift-Public\artifacts
-      NetShiftBin: D:\a\NetShift-Public\NetShift-Public\NetShift\bin\Release\net8.0-windows
-      SetupPath: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup
-      SolutionPath: D:\a\NetShift-Public\NetShift-Public\NetShift-Public.sln
-      NetShiftExe: D:\a\NetShift-Public\NetShift-Public\NetShift\bin\Release\net8.0-windows\NetShift.exe
-      NetShiftServiceExe: D:\a\NetShift-Public\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe
-      NetShiftSetupMsi: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi
-      NetShiftInstallerExe: D:\a\NetShift-Public\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
-      WIX_PATH: D:\a\NetShift-Public\NetShift-Public\tools\wix
+      BASE_DIR: ${{ github.workspace }}  # D:\a\NetShift\NetShift
+      ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
+      NetShiftBin: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows
+      SetupPath: ${{ github.workspace }}\NetShiftSetup
+      SolutionPath: ${{ github.workspace }}\NetShift-Public.sln
+      NetShiftExe: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows\NetShift.exe
+      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\Release\NetShiftService.exe
+      NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
+      NetShiftInstallerExe: ${{ github.workspace }}\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
+      WIX_PATH: ${{ github.workspace }}\tools\wix
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        ref: main  # Explicitly checkout the main branch
+        ref: main
 
     - name: Debug checkout details
       run: |
@@ -209,8 +209,8 @@ jobs:
         echo "Workflow failed. Checking environment..."
         dir "${{ env.BASE_DIR }}"
         dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
-        dir "${{ env.NetShiftBin }}"
-        dir "${{ env.SetupPath }}"
+        dir "${{ env.NetShiftBin }}" -ErrorAction SilentlyContinue
+        dir "${{ env.SetupPath }}" -ErrorAction SilentlyContinue
         & "${{ env.WIX_PATH }}\heat.exe" --version -ErrorAction SilentlyContinue
       shell: powershell
 
