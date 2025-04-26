@@ -23,32 +23,48 @@ jobs:
   build-sign:
     runs-on: windows-latest
     env:
-      BASE_DIR: D:\a\NetShift-Public\NetShift-Public
-      ARTIFACTS_DIR: D:\a\NetShift-Public\NetShift-Public\artifacts
-      NetShiftBin: D:\a\NetShift-Public\NetShift-Public\NetShift\bin\Release\net8.0-windows
-      SetupPath: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup
-      SolutionPath: D:\a\NetShift-Public\NetShift-Public\NetShift-Public.sln
-      NetShiftExe: D:\a\NetShift-Public\NetShift-Public\NetShift\bin\Release\net8.0-windows\NetShift.exe
-      NetShiftServiceExe: D:\a\NetShift-Public\NetShift-Public\NetShiftService\bin\Release\NetShiftService.exe
-      NetShiftSetupMsi: D:\a\NetShift-Public\NetShift-Public\NetShiftSetup\bin\Release\NetShiftSetup.msi
-      NetShiftInstallerExe: D:\a\NetShift-Public\NetShift-Public\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
-      WIX_PATH: D:\a\NetShift-Public\NetShift-Public\tools\wix
+      BASE_DIR: ${{ github.workspace }}  # D:\a\NetShift\NetShift
+      ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
+      NetShiftBin: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows
+      SetupPath: ${{ github.workspace }}\NetShiftSetup
+      SolutionPath: ${{ github.workspace }}\NetShift-Public.sln
+      NetShiftExe: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows\NetShift.exe
+      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\Release\NetShiftService.exe
+      NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
+      NetShiftInstallerExe: ${{ github.workspace }}\NetShiftInstaller\bin\Release\NetShiftInstaller.exe
+      WIX_PATH: ${{ github.workspace }}\tools\wix
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        ref: main
+
+    - name: Debug checkout details
+      run: |
+        echo "Current branch:"
+        git branch --show-current
+        echo "Latest commit:"
+        git log --oneline -n 1
+        echo "Repository contents:"
+        dir "${{ env.BASE_DIR }}"
+        dir "${{ env.BASE_DIR }}\tools" -ErrorAction SilentlyContinue
+        echo "WiX tools directory contents:"
+        dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
+        dir "${{ env.WIX_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
+      shell: powershell
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
-      with:
-        msbuild-version: '17.8'
 
     - name: Verify WiX tools
       run: |
         dir "${{ env.WIX_PATH }}"
-        & "${{ env.WIX_PATH }}\heat.exe" --version
+        echo "Checking heat.exe version:"
+        & "${{ env.WIX_PATH }}\heat.exe" -? | Select-String "WiX Toolset Harvester version"
+        if (-Not (Test-Path "${{ env.WIX_PATH }}\candle.exe")) { throw "candle.exe not found in tools/wix" }
+        if (-Not (Test-Path "${{ env.WIX_PATH }}\light.exe")) { throw "light.exe not found in tools/wix" }
       shell: powershell
 
     - name: Create artifacts directory
@@ -196,10 +212,12 @@ jobs:
       if: failure()
       run: |
         echo "Workflow failed. Checking environment..."
-        dir "${{ env.WIX_PATH }}"
-        dir "${{ env.NetShiftBin }}"
-        dir "${{ env.SetupPath }}"
-        & "${{ env.WIX_PATH }}\heat.exe" --version
+        dir "${{ env.BASE_DIR }}"
+        dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
+        dir "${{ env.WIX_PATH }}" -Filter *.exe -ErrorAction SilentlyContinue
+        dir "${{ env.NetShiftBin }}" -ErrorAction SilentlyContinue
+        dir "${{ env.SetupPath }}" -ErrorAction SilentlyContinue
+        & "${{ env.WIX_PATH }}\heat.exe" -? -ErrorAction SilentlyContinue
       shell: powershell
 
   release:
