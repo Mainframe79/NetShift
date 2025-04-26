@@ -11,7 +11,6 @@ on:
       - 'readme.md'
       - '**/README.md'
       - '**/readme.md'
-      - '.github/workflows/deploy.yml'
 
 permissions:
   actions: read
