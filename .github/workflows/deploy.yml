@@ -39,11 +39,22 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        ref: main  # Explicitly checkout the main branch
+
+    - name: Debug checkout details
+      run: |
+        echo "Current branch:"
+        git branch --show-current
+        echo "Latest commit:"
+        git log --oneline -n 1
+        echo "Repository contents:"
+        dir "${{ env.BASE_DIR }}"
+        dir "${{ env.BASE_DIR }}\tools" -ErrorAction SilentlyContinue
+        dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
+      shell: powershell
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
-      with:
-        msbuild-version: '17.8'
 
     - name: Verify WiX tools
       run: |
@@ -196,10 +207,11 @@ jobs:
       if: failure()
       run: |
         echo "Workflow failed. Checking environment..."
-        dir "${{ env.WIX_PATH }}"
+        dir "${{ env.BASE_DIR }}"
+        dir "${{ env.WIX_PATH }}" -ErrorAction SilentlyContinue
         dir "${{ env.NetShiftBin }}"
         dir "${{ env.SetupPath }}"
-        & "${{ env.WIX_PATH }}\heat.exe" --version
+        & "${{ env.WIX_PATH }}\heat.exe" --version -ErrorAction SilentlyContinue
       shell: powershell
 
   release:
