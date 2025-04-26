@@ -13,7 +13,24 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Company>ZentrixLabs</Company>
 	</PropertyGroup>
-
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<OutputPath>bin\x64\Release\net8.0-windows\</OutputPath>
+		<PlatformTarget>x64</PlatformTarget>
+		<DefineConstants>TRACE</DefineConstants>
+		<Optimize>true</Optimize>
+		<DebugType>pdbonly</DebugType>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>bin\Release\net8.0-windows\</OutputPath>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<DefineConstants>TRACE</DefineConstants>
+		<Optimize>true</Optimize>
+		<DebugType>pdbonly</DebugType>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\ZentrixLabs_Logo.png" />
 	</ItemGroup>
