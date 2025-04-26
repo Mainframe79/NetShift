@@ -8,6 +8,7 @@ on:
       - 'v*.*.*'
     paths:
       - '**'
+      - '!.github/workflows/*.yml'
       - '!README.md'
       - '!readme.md'
       - '!**/README.md'
@@ -188,6 +189,13 @@ jobs:
         path: ${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe
         retention-days: 7
 
+    - name: Debug action download failure
+      if: failure()
+      run: |
+        echo "Failed to download sslcom/esigner-codesign@v1"
+        curl -I https://api.github.com/repos/sslcom/esigner-codesign/zipball/v1
+      shell: powershell
+
   release:
     needs: build-sign
     runs-on: ubuntu-latest
@@ -197,6 +205,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: artifacts
+
+    - name: Debug downloaded artifacts
+      run: ls -R artifacts
+      shell: bash
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
