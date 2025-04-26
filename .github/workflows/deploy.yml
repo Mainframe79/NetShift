@@ -29,6 +29,7 @@ jobs:
       SetupPath: ${{ github.workspace }}\NetShiftSetup
       NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
       NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
+      NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows
       NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
       NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
       NetShiftInstallerExe: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftInstaller.exe
@@ -65,7 +66,7 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftExe }}
-          output_path: ${{ env.NetShiftExe }}
+          output_path: ${{ env.NetShiftBin }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
@@ -82,7 +83,7 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftServiceExe }}
-          output_path: ${{ env.NetShiftServiceExe }}
+          output_path: ${{ env.NetShiftServiceBin }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
@@ -113,7 +114,7 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftSetupMsi }}
-          output_path: ${{ env.NetShiftSetupMsi }}
+          output_path: ${{ github.workspace }}\NetShiftSetup\bin\Release
           environment_name: PROD
           signing_method: v2
           malware_block: false
@@ -132,7 +133,7 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftInstallerExe }}
-          output_path: ${{ env.NetShiftInstallerExe }}
+          output_path: ${{ github.workspace }}\NetShiftSetup\bin\Release
           environment_name: PROD
           signing_method: v2
           malware_block: false
