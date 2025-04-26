@@ -11,6 +11,9 @@ permissions:
   packages: write
   id-token: write
 
+env:
+  SIGN_CODE: false # <-- 🔥 toggle code signing easily: true or false
+
 jobs:
   build-sign-release:
     runs-on: windows-latest
@@ -21,12 +24,13 @@ jobs:
       SetupPath: ${{ github.workspace }}\NetShiftSetup
       NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
       NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
-      NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows
-      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
+      NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release
+      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
       NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
       NetShiftInstallerExe: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftInstaller.exe
       WIX_PATH: ${{ github.workspace }}\tools\wix
       RCEDIT_PATH: ${{ github.workspace }}\tools\rcedit\rcedit-x64.exe
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,6 +58,26 @@ jobs:
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
 
+      - name: Conditionally sign NetShift.exe
+        if: env.SIGN_CODE == 'true'
+        uses: sslcom/esigner-codesign@develop
+        with:
+          command: sign
+          username: ${{ secrets.CODESIGN_USERNAME }}
+          password: ${{ secrets.CODESIGN_PASSWORD }}
+          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+          file_path: ${{ env.NetShiftExe }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
+          environment_name: PROD
+          signing_method: v2
+          malware_block: false
+
+      - name: Replace NetShift.exe with signed version
+        if: env.SIGN_CODE == 'true'
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" "${{ env.NetShiftExe }}" -Force
+        shell: powershell
+
       - name: Build NetShiftService project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
 
@@ -63,7 +87,27 @@ jobs:
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
 
-      - name: Copy signed NetShiftService.exe into Setup directory
+      - name: Conditionally sign NetShiftService.exe
+        if: env.SIGN_CODE == 'true'
+        uses: sslcom/esigner-codesign@develop
+        with:
+          command: sign
+          username: ${{ secrets.CODESIGN_USERNAME }}
+          password: ${{ secrets.CODESIGN_PASSWORD }}
+          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+          file_path: ${{ env.NetShiftServiceExe }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
+          environment_name: PROD
+          signing_method: v2
+          malware_block: false
+
+      - name: Replace NetShiftService.exe with signed version
+        if: env.SIGN_CODE == 'true'
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
+        shell: powershell
+
+      - name: Copy NetShiftService.exe into Setup directory
         run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
         shell: powershell
 
@@ -75,13 +119,53 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftSetup.msi
-        run: | 
-          & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftSetup.msi"
+        run: |
+          & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.NetShiftSetupMsi }}"
         shell: powershell
 
-      - name: Build NetShiftInstaller.exe from Bundle.wxs
+      - name: Conditionally sign NetShiftSetup.msi
+        if: env.SIGN_CODE == 'true'
+        uses: sslcom/esigner-codesign@develop
+        with:
+          command: sign
+          username: ${{ secrets.CODESIGN_USERNAME }}
+          password: ${{ secrets.CODESIGN_PASSWORD }}
+          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+          file_path: ${{ env.NetShiftSetupMsi }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
+          environment_name: PROD
+          signing_method: v2
+          malware_block: false
+
+      - name: Replace NetShiftSetup.msi with signed version
+        if: env.SIGN_CODE == 'true'
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" "${{ env.NetShiftSetupMsi }}" -Force
+        shell: powershell
+
+      - name: Build NetShiftInstaller.exe
         run: |
-          & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftInstaller.exe"
+          & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.NetShiftInstallerExe }}"
+        shell: powershell
+
+      - name: Conditionally sign NetShiftInstaller.exe
+        if: env.SIGN_CODE == 'true'
+        uses: sslcom/esigner-codesign@develop
+        with:
+          command: sign
+          username: ${{ secrets.CODESIGN_USERNAME }}
+          password: ${{ secrets.CODESIGN_PASSWORD }}
+          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+          file_path: ${{ env.NetShiftInstallerExe }}
+          output_dir_path: ${{ env.ARTIFACTS_DIR }}
+          environment_name: PROD
+          signing_method: v2
+          malware_block: false
+
+      - name: Replace NetShiftInstaller.exe with signed version
+        if: env.SIGN_CODE == 'true'
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe" "${{ env.NetShiftInstallerExe }}" -Force
         shell: powershell
 
       - name: Upload Artifacts
