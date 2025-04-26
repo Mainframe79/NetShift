@@ -2,15 +2,8 @@ name: Build and Release NetShift
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*.*.*'
-    paths-ignore:
-      - 'README.md'
-      - 'readme.md'
-      - '**/README.md'
-      - '**/readme.md'
 
 permissions:
   actions: read
@@ -18,24 +11,22 @@ permissions:
   packages: write
   id-token: write
 
-env:
-  SIGNING_ENABLED: false # Set to true to re-enable code signing
-  BASE_DIR: ${{ github.workspace }}
-  ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
-  SolutionPath: ${{ github.workspace }}\NetShift.sln
-  SetupPath: ${{ github.workspace }}\NetShiftSetup
-  NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
-  NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
-  NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows
-  NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
-  NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
-  NetShiftInstallerExe: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftInstaller.exe
-  WIX_PATH: ${{ github.workspace }}\tools\wix
-  RCEDIT_PATH: ${{ github.workspace }}\tools\rcedit\rcedit-x64.exe
-
 jobs:
   build-sign-release:
     runs-on: windows-latest
+    env:
+      BASE_DIR: ${{ github.workspace }}
+      ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
+      SolutionPath: ${{ github.workspace }}\NetShift.sln
+      SetupPath: ${{ github.workspace }}\NetShiftSetup
+      NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
+      NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
+      NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows
+      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\net8.0-windows\NetShiftService.exe
+      NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
+      NetShiftInstallerExe: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftInstaller.exe
+      WIX_PATH: ${{ github.workspace }}\tools\wix
+      RCEDIT_PATH: ${{ github.workspace }}\tools\rcedit\rcedit-x64.exe
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,9 +34,8 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Ensure WiX tools available
-        run: |
-          echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Add WiX tools to PATH
+        run: echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: powershell
 
       - name: Create artifacts directory
@@ -55,43 +45,25 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore "${{ env.SolutionPath }}"
 
-      - name: Fetch version from tag if present
-        id: versioning
-        run: |
-          $version = "1.0.0.0"
-          if ($env:GITHUB_REF -match 'refs/tags/v(\d+\.\d+\.\d+)') {
-            $version = "$($matches[1]).0"
-          }
-          echo "Detected version: $version"
-          echo "VERSION=$version" >> $env:GITHUB_ENV
-        shell: powershell
-
-      - name: Download rcedit
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe" -OutFile "${{ env.RCEDIT_PATH }}"
-        shell: powershell
-
       - name: Build NetShift project
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
 
-      - name: Stamp NetShift.exe with version info
+      - name: Stamp version into NetShift.exe
         run: |
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" `
-            --set-version-string "FileVersion" "${{ env.VERSION }}" `
-            --set-version-string "ProductVersion" "${{ env.VERSION }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "ProductVersion" "${{ github.ref_name }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
 
       - name: Build NetShiftService project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
 
-      - name: Stamp NetShiftService.exe with version info
+      - name: Stamp version into NetShiftService.exe
         run: |
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" `
-            --set-version-string "FileVersion" "${{ env.VERSION }}" `
-            --set-version-string "ProductVersion" "${{ env.VERSION }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "ProductVersion" "${{ github.ref_name }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
 
-      - name: Copy NetShiftService.exe into Setup directory
+      - name: Copy signed NetShiftService.exe into Setup directory
         run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
         shell: powershell
 
@@ -103,7 +75,7 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftSetup.msi
-        run: |
+        run: | 
           & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Package.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftSetup.msi"
         shell: powershell
 
@@ -112,13 +84,14 @@ jobs:
           & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.SetupPath }}\bin\Release\NetShiftInstaller.exe"
         shell: powershell
 
-      - name: Upload artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: NetShiftArtifacts
+          name: NetShift-Installer
           path: |
             ${{ env.NetShiftSetupMsi }}
             ${{ env.NetShiftInstallerExe }}
+          retention-days: 7
 
   release:
     needs: build-sign-release
@@ -128,13 +101,14 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
+          name: NetShift-Installer
           path: artifacts
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/NetShiftArtifacts/NetShiftSetup.msi
-            artifacts/NetShiftArtifacts/NetShiftInstaller.exe
+            artifacts/NetShiftSetup.msi
+            artifacts/NetShiftInstaller.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
