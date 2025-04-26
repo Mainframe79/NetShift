@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 env:
-  SIGN_CODE: false # <-- 🔥 toggle code signing easily: true or false
+  SIGN_CODE: false # 🔥 Toggle code signing easily: true or false
 
 jobs:
   build-sign-release:
@@ -58,6 +58,9 @@ jobs:
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
 
+      - name: Rebuild NetShift project after stamping
+        run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
+
       - name: Conditionally sign NetShift.exe
         if: env.SIGN_CODE == 'true'
         uses: sslcom/esigner-codesign@develop
@@ -86,6 +89,9 @@ jobs:
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "ProductVersion" "${{ github.ref_name }}"
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
+
+      - name: Rebuild NetShiftService project after stamping
+        run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
 
       - name: Conditionally sign NetShiftService.exe
         if: env.SIGN_CODE == 'true'
