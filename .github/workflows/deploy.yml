@@ -27,7 +27,7 @@ jobs:
       ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
       NetShiftBin: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows
       SetupPath: ${{ github.workspace }}\NetShiftSetup
-      SolutionPath: ${{ github.workspace }}\NetShift-Public.sln
+      SolutionPath: ${{ github.workspace }}\NetShift.sln
       NetShiftExe: ${{ github.workspace }}\NetShift\bin\Release\net8.0-windows\NetShift.exe
       NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\Release\NetShiftService.exe
       NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
