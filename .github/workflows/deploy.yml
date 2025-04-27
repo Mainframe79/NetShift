@@ -143,10 +143,12 @@ jobs:
 
       - name: Build NetShiftSetup.msi
         run: |
-          & "${{ env.WIX_PATH }}\wix.exe" build `
-          "${{ env.SetupPath }}\Package.wxs" `
-          "${{ env.SetupPath }}\NetShiftFiles.wxs" `
-          -o "${{ env.NetShiftSetupMsi }}"
+          $args = @(
+            "${{ env.SetupPath }}\Package.wxs",
+            "${{ env.SetupPath }}\NetShiftFiles.wxs",
+            "-o", "${{ env.NetShiftSetupMsi }}"
+          )
+          & "${{ env.WIX_PATH }}\wix.exe" build @args
         shell: powershell
 
       - name: Conditionally sign NetShiftSetup.msi
@@ -171,7 +173,11 @@ jobs:
 
       - name: Build NetShiftInstaller.exe
         run: |
-          & "${{ env.WIX_PATH }}\wix.exe" build "${{ env.SetupPath }}\Bundle.wxs" -o "${{ env.NetShiftInstallerExe }}"
+          $args = @(
+            "${{ env.SetupPath }}\Bundle.wxs",
+            "-o", "${{ env.NetShiftInstallerExe }}"
+          )
+          & "${{ env.WIX_PATH }}\wix.exe" build @args
         shell: powershell
 
       - name: Conditionally sign NetShiftInstaller.exe
