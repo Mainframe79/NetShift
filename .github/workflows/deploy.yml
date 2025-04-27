@@ -118,11 +118,19 @@ jobs:
         run: dir "${{ env.NetShiftBin }}" -Recurse
         shell: powershell
 
+      - name: Debug NetShiftService output directory
+        run: dir "${{ env.NetShiftServiceBin }}" -Recurse
+        shell: powershell
+
       - name: Build Inno Setup Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
-        with:
-          path: ${{ env.SetupPath }}\setup.iss
-          options: /O+
+        run: |
+          $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
+          ISCC.exe "${{ env.SetupPath }}\setup.iss" > "${{ env.ARTIFACTS_DIR }}\iscc.log" 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Get-Content "${{ env.ARTIFACTS_DIR }}\iscc.log"
+            exit $LASTEXITCODE
+          }
+        shell: powershell
 
       - name: Conditionally sign NetShiftInstaller.exe
         if: env.SIGN_CODE == 'true'
