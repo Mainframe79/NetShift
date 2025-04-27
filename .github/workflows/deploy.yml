@@ -129,14 +129,14 @@ jobs:
         run: |
           $args = @(
             "dir", "${{ github.workspace }}\NetShift\bin\x64\Release",
-            "--directory-ref", "APPFOLDER",
-            "--component-group", "NetShiftFiles",
-            "--generate-guid",
-            "--suppress-com",
-            "--suppress-registry",
-            "--suppress-root-directory",
-            "--template=fragment",
-            "--out", "${{ env.SetupPath }}\NetShiftFiles.wxs"
+            "-dr", "APPFOLDER",
+            "-cg", "NetShiftFiles",
+            "-gg",
+            "-scom",
+            "-sreg",
+            "-srd",
+            "-template", "fragment",
+            "-out", "${{ env.SetupPath }}\NetShiftFiles.wxs"
           )
           & "${{ env.WIX_PATH }}\heat.exe" @args
         shell: powershell

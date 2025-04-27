@@ -57,7 +57,7 @@
 		<!-- Icon file in Assets folder -->
 		<DirectoryRef Id="ASSETSFOLDER">
 			<Component Id="CMP_Icon" Guid="{5CA92289-B7DC-47FD-A1BC-7AD7E6BA1003}">
-				<File Id="FILE_Icon" Source="NetShiftIcon.ico" KeyPath="yes" />
+				<File Id="FILE_Icon" Source="$(var.SourceDir)\NetShiftIcon.ico" KeyPath="yes" />
 			</Component>
 		</DirectoryRef>
 
@@ -90,7 +90,7 @@
 		</DirectoryRef>
 
 		<!-- Define the icon for shortcuts -->
-		<Icon Id="NetShiftIcon.ico" SourceFile="NetShiftIcon.ico" />
+		<Icon Id="NetShiftIcon.ico" SourceFile="$(var.SourceDir)\NetShiftIcon.ico" />
 
 		<!-- Feature to install the components -->
 		<Feature Id="MainApplication" Title="NetShift" Level="1">
