@@ -126,7 +126,7 @@ jobs:
         run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
         shell: powershell
         
-        - name: Cleanup build output before harvesting
+      - name: Cleanup build output before harvesting
         run: |
           Get-ChildItem -Path "${{ github.workspace }}\NetShift\bin\x64\Release" -Include *.pdb,*.xml -Recurse | Remove-Item -Force
         shell: powershell
