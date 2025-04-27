@@ -51,6 +51,8 @@ jobs:
 
       - name: Build NetShift project
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
+        env:
+          UseSharedCompilation: false
 
       - name: Stamp version into NetShift.exe
         run: |
@@ -60,6 +62,8 @@ jobs:
 
       - name: Rebuild NetShift project after stamping
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
+        env:
+          UseSharedCompilation: false
 
       - name: Conditionally sign NetShift.exe
         if: env.SIGN_CODE == 'true'
@@ -83,6 +87,8 @@ jobs:
 
       - name: Build NetShiftService project
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        env:
+          UseSharedCompilation: false
 
       - name: Stamp version into NetShiftService.exe
         run: |
@@ -92,6 +98,8 @@ jobs:
 
       - name: Rebuild NetShiftService project after stamping
         run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        env:
+          UseSharedCompilation: false
 
       - name: Conditionally sign NetShiftService.exe
         if: env.SIGN_CODE == 'true'
@@ -129,7 +137,6 @@ jobs:
           --template=fragment `
           --out "${{ env.SetupPath }}\NetShiftFiles.wxs"
         shell: powershell
-
 
       - name: Build NetShiftSetup.msi
         run: |
