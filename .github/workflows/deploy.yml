@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 env:
-  SIGN_CODE: false # 🔥 Toggle code signing easily: true or false
+  SIGN_CODE: false # 🔥 Toggle code signing
 
 jobs:
   build-sign-release:
