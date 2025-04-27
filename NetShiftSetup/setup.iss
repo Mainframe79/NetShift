@@ -12,9 +12,11 @@ AppPublisher=ZentrixLabs
 AppPublisherURL=https://zentrixlabs.com
 AppSupportURL=https://zentrixlabs.com/support
 AppUpdatesURL=https://zentrixlabs.com/updates
+SetupLogging=yes
 
 [Files]
 Source: "NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
+Source: "NetShift\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
 Source: "NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
