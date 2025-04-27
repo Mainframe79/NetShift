@@ -48,7 +48,8 @@ jobs:
 
       - name: Restore NuGet packages
         run: nuget restore "${{ env.SolutionPath }}"
-
+        shell: powershell
+        
       - name: Build NetShift project
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
         env:
@@ -146,6 +147,7 @@ jobs:
           $args = @(
             "${{ env.SetupPath }}\Package.wxs",
             "${{ env.SetupPath }}\NetShiftFiles.wxs",
+            "--bind", "SourceDir=${{ github.workspace }}\NetShift\bin\x64\Release",
             "-o", "${{ env.NetShiftSetupMsi }}"
           )
           & "${{ env.WIX_PATH }}\wix.exe" build @args
