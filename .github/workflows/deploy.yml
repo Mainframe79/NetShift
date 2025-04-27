@@ -129,7 +129,7 @@ jobs:
       - name: Cleanup build output before harvesting
         run: |
           Get-ChildItem -Path "${{ github.workspace }}\NetShift\bin\x64\Release" -Include *.pdb,*.xml -Recurse | Remove-Item -Force
-          shell: powershell
+        shell: powershell
 
       - name: Run heat.exe to regenerate NetShiftFiles.wxs
         run: |
