@@ -120,9 +120,16 @@ jobs:
       - name: Run heat.exe to regenerate NetShiftFiles.wxs
         run: |
           & "${{ env.WIX_PATH }}\heat.exe" dir "${{ github.workspace }}\NetShift\bin\x64\Release" `
-          -dr APPFOLDER -cg NetShiftFiles -gg -scom -sreg -srd -template fragment `
-          -out "${{ env.SetupPath }}\NetShiftFiles.wxs"
+          --directory-ref APPFOLDER `
+          --component-group NetShiftFiles `
+          --generate-guid `
+          --suppress-com `
+          --suppress-registry `
+          --suppress-root-directory `
+          --template=fragment `
+          --out "${{ env.SetupPath }}\NetShiftFiles.wxs"
         shell: powershell
+
 
       - name: Build NetShiftSetup.msi
         run: |
