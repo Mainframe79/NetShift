@@ -125,6 +125,11 @@ jobs:
       - name: Copy NetShiftService.exe into Setup directory
         run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
         shell: powershell
+      
+      - name: Cleanup build output before harvesting
+        run: |
+          Get-ChildItem -Path "${{ github.workspace }}\NetShift\bin\x64\Release" -Include *.pdb,*.xml -Recurse | Remove-Item -Force
+          shell: powershell
 
       - name: Run heat.exe to regenerate NetShiftFiles.wxs
         run: |
@@ -137,6 +142,7 @@ jobs:
             "-sreg",
             "-srd",
             "-template", "fragment",
+            "-var", "null"
             "-out", "${{ env.SetupPath }}\NetShiftFiles.wxs"
           )
           & "${{ env.WIX_PATH }}\heat.exe" @args
@@ -145,7 +151,6 @@ jobs:
       - name: Build NetShiftSetup.msi
         run: |
           $args = @(
-            "-dSourceDir=${{ github.workspace }}\NetShift\bin\x64\Release",
             "${{ env.SetupPath }}\Package.wxs",
             "${{ env.SetupPath }}\NetShiftFiles.wxs",
             "-o", "${{ env.NetShiftSetupMsi }}"
