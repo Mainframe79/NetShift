@@ -14,9 +14,7 @@ namespace NetShiftService
         {
             _processInstaller = new ServiceProcessInstaller
             {
-                Account = ServiceAccount.User,
-                Username = @".\test", // Replace with your service account (e.g., "J61\serviceaccount")
-                Password = "ShortPass" // Replace with the service account password
+                Account = ServiceAccount.LocalSystem
             };
 
             _serviceInstaller = new ServiceInstaller

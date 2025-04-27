@@ -13,34 +13,26 @@ permissions:
 
 env:
   SIGN_CODE: false # 🔥 Toggle code signing
+  BASE_DIR: ${{ github.workspace }}
+  ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
+  SolutionPath: ${{ github.workspace }}\NetShift.sln
+  SetupPath: ${{ github.workspace }}\NetShiftSetup
+  NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
+  NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
+  NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release
+  NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
+  NetShiftInstallerExe: ${{ github.workspace }}\artifacts\NetShiftInstaller.exe
+  RCEDIT_PATH: ${{ github.workspace }}\tools\rcedit\rcedit-x64.exe
 
 jobs:
   build-sign-release:
     runs-on: windows-latest
-    env:
-      BASE_DIR: ${{ github.workspace }}
-      ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
-      SolutionPath: ${{ github.workspace }}\NetShift.sln
-      SetupPath: ${{ github.workspace }}\NetShiftSetup
-      NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
-      NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
-      NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release
-      NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
-      NetShiftSetupMsi: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftSetup.msi
-      NetShiftInstallerExe: ${{ github.workspace }}\NetShiftSetup\bin\Release\NetShiftInstaller.exe
-      WIX_PATH: ${{ github.workspace }}\tools\wix
-      RCEDIT_PATH: ${{ github.workspace }}\tools\rcedit\rcedit-x64.exe
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
-
-      - name: Add WiX tools to PATH
-        run: echo "${{ env.WIX_PATH }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: powershell
 
       - name: Create artifacts directory
         run: New-Item -ItemType Directory -Force -Path "${{ env.ARTIFACTS_DIR }}"
@@ -49,7 +41,7 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore "${{ env.SolutionPath }}"
         shell: powershell
-        
+
       - name: Build NetShift project
         run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
         env:
@@ -122,69 +114,15 @@ jobs:
         run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
         shell: powershell
 
-      - name: Copy NetShiftService.exe into Setup directory
-        run: Copy-Item "${{ env.NetShiftServiceExe }}" "${{ env.SetupPath }}\NetShiftService.exe" -Force
-        shell: powershell
-      
-      - name: Cleanup build output before harvesting
-        run: |
-          Get-ChildItem -Path "${{ github.workspace }}\NetShift\bin\x64\Release" -Include *.pdb,*.xml -Recurse | Remove-Item -Force
+      - name: Debug build output directory
+        run: dir "${{ env.NetShiftBin }}" -Recurse
         shell: powershell
 
-      - name: Run heat.exe to regenerate NetShiftFiles.wxs
-        run: |
-          $args = @(
-            "dir", "${{ github.workspace }}\NetShift\bin\x64\Release",
-            "-dr", "APPFOLDER",
-            "-cg", "NetShiftFiles",
-            "-gg",
-            "-scom",
-            "-sreg",
-            "-srd",
-            "-template", "fragment",
-            "-out", "${{ env.SetupPath }}\NetShiftFiles.wxs"
-          )
-          & "${{ env.WIX_PATH }}\heat.exe" @args
-        shell: powershell
-
-      - name: Build NetShiftSetup.msi
-        run: |
-          $args = @(
-            "${{ env.SetupPath }}\Package.wxs",
-            "${{ env.SetupPath }}\NetShiftFiles.wxs",
-            "-o", "${{ env.NetShiftSetupMsi }}"
-          )
-          & "${{ env.WIX_PATH }}\wix.exe" build @args
-        shell: powershell
-
-      - name: Conditionally sign NetShiftSetup.msi
-        if: env.SIGN_CODE == 'true'
-        uses: sslcom/esigner-codesign@develop
+      - name: Build Inno Setup Installer
+        uses: crazy-max/ghaction-inno-setup@v1
         with:
-          command: sign
-          username: ${{ secrets.CODESIGN_USERNAME }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftSetupMsi }}
-          output_dir_path: ${{ env.ARTIFACTS_DIR }}
-          environment_name: PROD
-          signing_method: v2
-          malware_block: false
-
-      - name: Replace NetShiftSetup.msi with signed version
-        if: env.SIGN_CODE == 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftSetup.msi" "${{ env.NetShiftSetupMsi }}" -Force
-        shell: powershell
-
-      - name: Build NetShiftInstaller.exe
-        run: |
-          $args = @(
-            "${{ env.SetupPath }}\Bundle.wxs",
-            "-o", "${{ env.NetShiftInstallerExe }}"
-          )
-          & "${{ env.WIX_PATH }}\wix.exe" build @args
-        shell: powershell
+          script: ${{ env.SetupPath }}\setup.iss
+          output: ${{ env.NetShiftInstallerExe }}
 
       - name: Conditionally sign NetShiftInstaller.exe
         if: env.SIGN_CODE == 'true'
@@ -201,18 +139,11 @@ jobs:
           signing_method: v2
           malware_block: false
 
-      - name: Replace NetShiftInstaller.exe with signed version
-        if: env.SIGN_CODE == 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftInstaller.exe" "${{ env.NetShiftInstallerExe }}" -Force
-        shell: powershell
-
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: NetShift-Installer
-          path: |
-            ${{ env.NetShiftSetupMsi }}
-            ${{ env.NetShiftInstallerExe }}
+          path: ${{ env.NetShiftInstallerExe }}
           retention-days: 7
 
   release:
@@ -229,8 +160,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            artifacts/NetShiftSetup.msi
-            artifacts/NetShiftInstaller.exe
+          files: artifacts/NetShiftInstaller.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
