@@ -4,7 +4,7 @@ AppVersion=1.0.0
 DefaultDirName={autopf}\NetShift
 OutputDir=artifacts
 OutputBaseFilename=NetShiftInstaller
-SetupIconFile=NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico
+SetupIconFile=NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
@@ -15,8 +15,8 @@ AppUpdatesURL=https://zentrixlabs.com/updates
 SetupLogging=yes
 
 [Files]
-Source: "NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
-Source: "NetShift\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
+Source: "NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
+Source: "NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
 Source: "NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
