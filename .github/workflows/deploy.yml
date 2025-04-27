@@ -30,6 +30,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          path: .
+
+      - name: Debug repository structure
+        run: dir "${{ github.workspace }}" -Recurse
+        shell: powershell
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -117,6 +123,11 @@ jobs:
       - name: Debug build output directory
         run: dir "${{ env.NetShiftBin }}" -Recurse
         shell: powershell
+
+      - name: Debug alternative NetShift build output directory
+        run: dir "${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows" -Recurse
+        shell: powershell
+        continue-on-error: true
 
       - name: Debug NetShiftService output directory
         run: dir "${{ env.NetShiftServiceBin }}" -Recurse
