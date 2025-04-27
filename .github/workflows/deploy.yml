@@ -119,7 +119,7 @@ jobs:
         shell: powershell
 
       - name: Build Inno Setup Installer
-        uses: crazy-max/ghaction-inno-setup@v1
+        uses: crazy-max/ghaction-inno-setup@v3
         with:
           script: ${{ env.SetupPath }}\setup.iss
           output: ${{ env.NetShiftInstallerExe }}
