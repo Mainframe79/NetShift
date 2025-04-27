@@ -1,10 +1,10 @@
 [Setup]
 AppName=NetShift
-AppVersion=${{ github.ref_name }}
+AppVersion=1.0.0
 DefaultDirName={autopf}\NetShift
-OutputDir=${{ github.workspace }}\artifacts
+OutputDir=artifacts
 OutputBaseFilename=NetShiftInstaller
-SetupIconFile=${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico
+SetupIconFile=NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
@@ -14,8 +14,8 @@ AppSupportURL=https://zentrixlabs.com/support
 AppUpdatesURL=https://zentrixlabs.com/updates
 
 [Files]
-Source: "${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
-Source: "${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
+Source: "NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\NetShift"; Filename: "{app}\NetShift.exe"

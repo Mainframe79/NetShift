@@ -121,8 +121,8 @@ jobs:
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
         with:
-          script: ${{ env.SetupPath }}\setup.iss
-          output: ${{ env.NetShiftInstallerExe }}
+          path: ${{ env.SetupPath }}\setup.iss
+          options: /O+
 
       - name: Conditionally sign NetShiftInstaller.exe
         if: env.SIGN_CODE == 'true'
