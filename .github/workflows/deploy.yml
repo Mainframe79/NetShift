@@ -142,7 +142,6 @@ jobs:
             "-sreg",
             "-srd",
             "-template", "fragment",
-            "-var", "null"
             "-out", "${{ env.SetupPath }}\NetShiftFiles.wxs"
           )
           & "${{ env.WIX_PATH }}\heat.exe" @args
