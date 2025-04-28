@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 env:
-  SIGN_CODE: false # 🔥 Toggle code signing
+  SIGN_CODE: false # 🔥 Toggle code signing (still disabled until testing is complete)
   BASE_DIR: D:\a\NetShift\NetShift
   ARTIFACTS_DIR: D:\a\NetShift\NetShift\artifacts
   SolutionPath: D:\a\NetShift\NetShift\NetShift.sln
@@ -214,6 +214,11 @@ jobs:
           }
         shell: powershell
         working-directory: D:\a\NetShift
+
+      - name: Debug artifacts directory
+        run: dir "${{ env.ARTIFACTS_DIR }}" -Recurse
+        shell: powershell
+        continue-on-error: true
 
       - name: Conditionally sign NetShiftInstaller.exe
         if: env.SIGN_CODE == 'true'
