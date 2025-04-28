@@ -28,10 +28,16 @@ jobs:
   build-sign-release:
     runs-on: windows-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository to temporary directory
         uses: actions/checkout@v4
         with:
-          path: .
+          path: temp-checkout
+
+      - name: Move contents to working directory
+        run: |
+          Move-Item -Path "temp-checkout\*" -Destination "${{ github.workspace }}" -Force
+          Remove-Item -Path "temp-checkout" -Recurse -Force
+        shell: powershell
 
       - name: Debug repository structure
         run: dir "${{ github.workspace }}" -Recurse
@@ -52,6 +58,11 @@ jobs:
         run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
+
+      - name: Debug build output directory before stamping
+        run: dir "${{ env.NetShiftBin }}" -Recurse
+        shell: powershell
+        continue-on-error: true
 
       - name: Stamp version into NetShift.exe
         run: |
@@ -123,6 +134,7 @@ jobs:
       - name: Debug build output directory
         run: dir "${{ env.NetShiftBin }}" -Recurse
         shell: powershell
+        continue-on-error: true
 
       - name: Debug alternative NetShift build output directory
         run: dir "${{ github.workspace }}\NetShiftMain\bin\x64\Release\net8.0-windows" -Recurse
@@ -132,6 +144,7 @@ jobs:
       - name: Debug NetShiftService output directory
         run: dir "${{ env.NetShiftServiceBin }}" -Recurse
         shell: powershell
+        continue-on-error: true
 
       - name: Download and Install Inno Setup
         run: |
