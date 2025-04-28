@@ -179,6 +179,11 @@ jobs:
         shell: powershell
         working-directory: D:\a\NetShift
 
+      - name: Debug setup.iss contents
+        run: Get-Content "${{ env.SetupPath }}\setup.iss"
+        shell: powershell
+        working-directory: D:\a\NetShift
+
       - name: Build Inno Setup Installer
         run: |
           $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
