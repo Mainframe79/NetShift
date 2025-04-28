@@ -37,6 +37,20 @@ jobs:
         run: dir "D:\a\NetShift\NetShift" -Recurse
         shell: powershell
 
+      - name: Delay to ensure checkout completes
+        run: Start-Sleep -Seconds 5
+        shell: powershell
+
+      - name: Verify solution file exists
+        run: |
+          if (Test-Path "${{ env.SolutionPath }}") {
+            Write-Output "Solution file exists at ${{ env.SolutionPath }}"
+          } else {
+            Write-Error "Solution file does not exist at ${{ env.SolutionPath }}"
+            exit 1
+          }
+        shell: powershell
+
       - name: Download NuGet CLI
         run: |
           Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
@@ -50,9 +64,15 @@ jobs:
         run: New-Item -ItemType Directory -Force -Path "${{ env.ARTIFACTS_DIR }}"
         shell: powershell
 
-      - name: Restore NuGet packages
+      - name: Restore NuGet packages with nuget.exe
         run: |
           .\nuget.exe restore "${{ env.SolutionPath }}" -Verbosity detailed
+        shell: powershell
+        working-directory: D:\a\NetShift
+        continue-on-error: true
+
+      - name: Restore NuGet packages with msbuild
+        run: msbuild "${{ env.SolutionPath }}" -t:Restore -p:Configuration=Release -p:Platform=x64
         shell: powershell
         working-directory: D:\a\NetShift
 
