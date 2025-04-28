@@ -48,17 +48,19 @@ begin
 end;
 
 procedure InitializeWizard;
+var
+  ErrorCode: Integer;
 begin
   if not IsDotNet48Installed then
   begin
     MsgBox('.NET Framework 4.8 is required. Please download and install it.', mbInformation, MB_OK);
-    ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOW, ewNoWait, nil);
+    ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOW, ewNoWait, ErrorCode);
     WizardForm.Close;
   end;
   if not IsDotNet8Installed then
   begin
     MsgBox('.NET 8 Desktop Runtime is required. Please download and install it.', mbInformation, MB_OK);
-    ShellExec('open', 'https://dotnet.microsoft.com/en-us/download/dotnet/8.0', '', '', SW_SHOW, ewNoWait, nil);
+    ShellExec('open', 'https://dotnet.microsoft.com/en-us/download/dotnet/8.0', '', '', SW_SHOW, ewNoWait, ErrorCode);
     WizardForm.Close;
   end;
 end;
