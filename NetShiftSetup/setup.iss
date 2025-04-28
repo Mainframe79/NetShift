@@ -15,9 +15,9 @@ AppUpdatesURL=https://zentrixlabs.com/updates
 SetupLogging=yes
 
 [Files]
-Source: "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
-Source: "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
-Source: "NetShift\NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
+Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
+Source: "..\NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\NetShift"; Filename: "{app}\NetShiftMain.exe"
