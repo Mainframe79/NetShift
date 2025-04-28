@@ -8,6 +8,7 @@ DefaultGroupName=NetShift
 OutputDir=..\artifacts
 OutputBaseFilename=NetShiftInstaller
 SetupIconFile=..\..\NetShiftIcon.ico
+UninstallDisplayIcon={app}\NetShiftIcon.ico
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
@@ -21,6 +22,7 @@ SetupLogging=yes
 Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
 Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
 Source: "..\NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\NetShiftIcon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\NetShift"; Filename: "{app}\NetShiftMain.exe"
