@@ -1,5 +1,3 @@
-#define MyAppVersion "1.0.0"
-
 [Setup]
 AppName=NetShift
 AppVersion={#MyAppVersion}
