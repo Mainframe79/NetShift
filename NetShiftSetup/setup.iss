@@ -2,9 +2,9 @@
 AppName=NetShift
 AppVersion=1.0.0
 DefaultDirName={autopf}\NetShift
-OutputDir=artifacts
+OutputDir=..\artifacts
 OutputBaseFilename=NetShiftInstaller
-SetupIconFile=NetShiftIcon.ico
+SetupIconFile=..\..\NetShiftIcon.ico
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
@@ -15,9 +15,9 @@ AppUpdatesURL=https://zentrixlabs.com/updates
 SetupLogging=yes
 
 [Files]
-Source: "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
-Source: "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
-Source: "NetShift\NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
+Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs onlyifdoesntexist; Excludes: "*.resources.dll"
+Source: "..\NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\NetShift"; Filename: "{app}\NetShiftMain.exe"
@@ -30,7 +30,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Filename: "{dotnet40}\InstallUtil.exe"; Parameters: """{app}\NetShiftService.exe"""; Flags: runhidden; Description: "Install NetShift Service"
 
 [UninstallRun]
-Filename: "{dotnet40}\InstallUtil.exe"; Parameters: "/u ""{app}\NetShiftService.exe"""; Flags: runhidden; Description: "Uninstall NetShift Service"
+Filename: "{dotnet40}\InstallUtil.exe"; Parameters: "/u ""{app}\NetShiftService.exe"""; Flags: runhidden
 
 [Code]
 function IsDotNet48Installed: Boolean;
@@ -48,17 +48,19 @@ begin
 end;
 
 procedure InitializeWizard;
+var
+  ErrorCode: Integer;
 begin
   if not IsDotNet48Installed then
   begin
     MsgBox('.NET Framework 4.8 is required. Please download and install it.', mbInformation, MB_OK);
-    ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOW, ewNoWait, nil);
+    ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOW, ewNoWait, ErrorCode);
     WizardForm.Close;
   end;
   if not IsDotNet8Installed then
   begin
     MsgBox('.NET 8 Desktop Runtime is required. Please download and install it.', mbInformation, MB_OK);
-    ShellExec('open', 'https://dotnet.microsoft.com/en-us/download/dotnet/8.0', '', '', SW_SHOW, ewNoWait, nil);
+    ShellExec('open', 'https://dotnet.microsoft.com/en-us/download/dotnet/8.0', '', '', SW_SHOW, ewNoWait, ErrorCode);
     WizardForm.Close;
   end;
 end;
