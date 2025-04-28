@@ -37,6 +37,12 @@ jobs:
         run: dir "D:\a\NetShift\NetShift" -Recurse
         shell: powershell
 
+      - name: Download NuGet CLI
+        run: |
+          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
+        shell: powershell
+        working-directory: D:\a\NetShift
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
@@ -45,8 +51,10 @@ jobs:
         shell: powershell
 
       - name: Restore NuGet packages
-        run: nuget restore "${{ env.SolutionPath }}"
+        run: |
+          .\nuget.exe restore "${{ env.SolutionPath }}" -Verbosity detailed
         shell: powershell
+        working-directory: D:\a\NetShift
 
       - name: Build NetShiftMain project
         run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
