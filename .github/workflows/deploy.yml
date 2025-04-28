@@ -77,7 +77,7 @@ jobs:
         working-directory: D:\a\NetShift
 
       - name: Build NetShiftMain project
-        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
         working-directory: D:\a\NetShift
@@ -94,7 +94,7 @@ jobs:
         shell: powershell
 
       - name: Rebuild NetShiftMain project after stamping
-        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
         working-directory: D:\a\NetShift
@@ -120,7 +120,7 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftService project
-        run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
         working-directory: D:\a\NetShift
@@ -132,7 +132,7 @@ jobs:
         shell: powershell
 
       - name: Rebuild NetShiftService project after stamping
-        run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
         working-directory: D:\a\NetShift
