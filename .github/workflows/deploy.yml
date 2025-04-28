@@ -184,6 +184,22 @@ jobs:
         shell: powershell
         working-directory: D:\a\NetShift
 
+      - name: Delay to ensure build outputs are accessible
+        run: Start-Sleep -Seconds 5
+        shell: powershell
+
+      - name: Verify NetShiftIcon.ico exists
+        run: |
+          $iconPath = "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico"
+          if (Test-Path $iconPath) {
+            Write-Output "NetShiftIcon.ico exists at $iconPath"
+          } else {
+            Write-Error "NetShiftIcon.ico does not exist at $iconPath"
+            exit 1
+          }
+        shell: powershell
+        working-directory: D:\a\NetShift
+
       - name: Build Inno Setup Installer
         run: |
           $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
