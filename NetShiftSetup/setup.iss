@@ -42,9 +42,44 @@ end;
 
 function IsDotNet8Installed: Boolean;
 var
-  regValue: Cardinal;
+  SubKeyNames: TArrayOfString;
+  SubKey: String;
+  DisplayName: String;
+  I: Integer;
 begin
-  Result := RegQueryDWordValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.NETCore.App', '8.0', regValue) and (regValue = 1);
+  Result := False;
+  // Check 64-bit uninstall hive
+  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', SubKeyNames) then
+  begin
+    for I := 0 to GetArrayLength(SubKeyNames) - 1 do
+    begin
+      SubKey := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\' + SubKeyNames[I];
+      if RegQueryStringValue(HKEY_LOCAL_MACHINE, SubKey, 'DisplayName', DisplayName) then
+      begin
+        if (Pos('Microsoft Windows Desktop Runtime', DisplayName) > 0) and (Pos('8.0', DisplayName) > 0) then
+        begin
+          Result := True;
+          Exit;
+        end;
+      end;
+    end;
+  end;
+  // Check 32-bit uninstall hive (WOW6432Node) on 64-bit systems
+  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall', SubKeyNames) then
+  begin
+    for I := 0 to GetArrayLength(SubKeyNames) - 1 do
+    begin
+      SubKey := 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\' + SubKeyNames[I];
+      if RegQueryStringValue(HKEY_LOCAL_MACHINE, SubKey, 'DisplayName', DisplayName) then
+      begin
+        if (Pos('Microsoft Windows Desktop Runtime', DisplayName) > 0) and (Pos('8.0', DisplayName) > 0) then
+        begin
+          Result := True;
+          Exit;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure InitializeWizard;
