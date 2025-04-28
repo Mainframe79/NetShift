@@ -13,34 +13,28 @@ permissions:
 
 env:
   SIGN_CODE: false # 🔥 Toggle code signing
-  BASE_DIR: ${{ github.workspace }}
-  ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
-  SolutionPath: ${{ github.workspace }}\NetShift.sln
-  SetupPath: ${{ github.workspace }}\NetShiftSetup
-  NetShiftBin: ${{ github.workspace }}\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
-  NetShiftExe: ${{ github.workspace }}\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
-  NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release
-  NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
-  NetShiftInstallerExe: ${{ github.workspace }}\artifacts\NetShiftInstaller.exe
-  RCEDIT_PATH: ${{ github.workspace }}\tools\rcedit\rcedit-x64.exe
+  BASE_DIR: D:\a\NetShift
+  ARTIFACTS_DIR: D:\a\NetShift\artifacts
+  SolutionPath: D:\a\NetShift\NetShift.sln
+  SetupPath: D:\a\NetShift\NetShiftSetup
+  NetShiftBin: D:\a\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
+  NetShiftExe: D:\a\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShiftMain.exe
+  NetShiftServiceBin: D:\a\NetShift\NetShiftService\bin\x64\Release
+  NetShiftServiceExe: D:\a\NetShift\NetShiftService\bin\x64\Release\NetShiftService.exe
+  NetShiftInstallerExe: D:\a\NetShift\artifacts\NetShiftInstaller.exe
+  RCEDIT_PATH: D:\a\NetShift\tools\rcedit\rcedit-x64.exe
 
 jobs:
   build-sign-release:
     runs-on: windows-latest
     steps:
-      - name: Checkout repository to temporary directory
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          path: temp-checkout
-
-      - name: Move contents to working directory
-        run: |
-          Move-Item -Path "temp-checkout\*" -Destination "${{ github.workspace }}" -Force
-          Remove-Item -Path "temp-checkout" -Recurse -Force
-        shell: powershell
+          path: NetShift
 
       - name: Debug repository structure
-        run: dir "${{ github.workspace }}" -Recurse
+        run: dir "D:\a\NetShift" -Recurse
         shell: powershell
 
       - name: Setup MSBuild
@@ -55,27 +49,28 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftMain project
-        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
+        working-directory: D:\a
 
       - name: Debug build output directory before stamping
         run: dir "${{ env.NetShiftBin }}" -Recurse
         shell: powershell
-        continue-on-error: true
 
-      - name: Stamp version into NetShift.exe
+      - name: Stamp version into NetShiftMain.exe
         run: |
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "ProductVersion" "${{ github.ref_name }}"
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
 
       - name: Rebuild NetShiftMain project after stamping
-        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
+        working-directory: D:\a
 
-      - name: Conditionally sign NetShift.exe
+      - name: Conditionally sign NetShiftMain.exe
         if: env.SIGN_CODE == 'true'
         uses: sslcom/esigner-codesign@develop
         with:
@@ -90,15 +85,16 @@ jobs:
           signing_method: v2
           malware_block: false
 
-      - name: Replace NetShift.exe with signed version
+      - name: Replace NetShiftMain.exe with signed version
         if: env.SIGN_CODE == 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShift.exe" "${{ env.NetShiftExe }}" -Force
+        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftMain.exe" "${{ env.NetShiftExe }}" -Force
         shell: powershell
 
       - name: Build NetShiftService project
-        run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
+        working-directory: D:\a
 
       - name: Stamp version into NetShiftService.exe
         run: |
@@ -107,9 +103,10 @@ jobs:
         shell: powershell
 
       - name: Rebuild NetShiftService project after stamping
-        run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
+        working-directory: D:\a
 
       - name: Conditionally sign NetShiftService.exe
         if: env.SIGN_CODE == 'true'
@@ -137,7 +134,7 @@ jobs:
         continue-on-error: true
 
       - name: Debug alternative NetShift build output directory
-        run: dir "${{ github.workspace }}\NetShiftMain\bin\x64\Release\net8.0-windows" -Recurse
+        run: dir "D:\a\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows" -Recurse
         shell: powershell
         continue-on-error: true
 
@@ -151,6 +148,7 @@ jobs:
           Invoke-WebRequest -Uri https://jrsoftware.org/download.php/is.exe -OutFile inno-setup-installer.exe
           Start-Process -FilePath .\inno-setup-installer.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" -Wait
         shell: powershell
+        working-directory: D:\a\NetShift
 
       - name: Build Inno Setup Installer
         run: |
@@ -161,6 +159,7 @@ jobs:
             exit $LASTEXITCODE
           }
         shell: powershell
+        working-directory: D:\a\NetShift
 
       - name: Conditionally sign NetShiftInstaller.exe
         if: env.SIGN_CODE == 'true'
