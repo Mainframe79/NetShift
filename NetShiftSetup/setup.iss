@@ -20,8 +20,8 @@ Source: "NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags
 Source: "NetShiftService\bin\x64\Release\NetShiftService.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{autoprograms}\NetShift"; Filename: "{app}\NetShift.exe"
-Name: "{autodesktop}\NetShift"; Filename: "{app}\NetShift.exe"; Tasks: desktopicon
+Name: "{autoprograms}\NetShift"; Filename: "{app}\NetShiftMain.exe"
+Name: "{autodesktop}\NetShift"; Filename: "{app}\NetShiftMain.exe"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
