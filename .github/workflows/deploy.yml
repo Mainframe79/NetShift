@@ -13,16 +13,16 @@ permissions:
 
 env:
   SIGN_CODE: false # 🔥 Toggle code signing
-  BASE_DIR: D:\a\NetShift
-  ARTIFACTS_DIR: D:\a\NetShift\artifacts
-  SolutionPath: D:\a\NetShift\NetShift.sln
-  SetupPath: D:\a\NetShift\NetShiftSetup
-  NetShiftBin: D:\a\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
-  NetShiftExe: D:\a\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShiftMain.exe
-  NetShiftServiceBin: D:\a\NetShift\NetShiftService\bin\x64\Release
-  NetShiftServiceExe: D:\a\NetShift\NetShiftService\bin\x64\Release\NetShiftService.exe
-  NetShiftInstallerExe: D:\a\NetShift\artifacts\NetShiftInstaller.exe
-  RCEDIT_PATH: D:\a\NetShift\tools\rcedit\rcedit-x64.exe
+  BASE_DIR: D:\a\NetShift\NetShift
+  ARTIFACTS_DIR: D:\a\NetShift\NetShift\artifacts
+  SolutionPath: D:\a\NetShift\NetShift\NetShift.sln
+  SetupPath: D:\a\NetShift\NetShift\NetShiftSetup
+  NetShiftBin: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
+  NetShiftExe: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShiftMain.exe
+  NetShiftServiceBin: D:\a\NetShift\NetShift\NetShiftService\bin\x64\Release
+  NetShiftServiceExe: D:\a\NetShift\NetShift\NetShiftService\bin\x64\Release\NetShiftService.exe
+  NetShiftInstallerExe: D:\a\NetShift\NetShift\artifacts\NetShiftInstaller.exe
+  RCEDIT_PATH: D:\a\NetShift\NetShift\tools\rcedit\rcedit-x64.exe
 
 jobs:
   build-sign-release:
@@ -34,7 +34,7 @@ jobs:
           path: NetShift
 
       - name: Debug repository structure
-        run: dir "D:\a\NetShift" -Recurse
+        run: dir "D:\a\NetShift\NetShift" -Recurse
         shell: powershell
 
       - name: Setup MSBuild
@@ -49,14 +49,15 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftMain project
-        run: msbuild NetShift\NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
-        working-directory: D:\a
+        working-directory: D:\a\NetShift
 
       - name: Debug build output directory before stamping
         run: dir "${{ env.NetShiftBin }}" -Recurse
         shell: powershell
+        continue-on-error: true
 
       - name: Stamp version into NetShiftMain.exe
         run: |
@@ -65,10 +66,10 @@ jobs:
         shell: powershell
 
       - name: Rebuild NetShiftMain project after stamping
-        run: msbuild NetShift\NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
-        working-directory: D:\a
+        working-directory: D:\a\NetShift
 
       - name: Conditionally sign NetShiftMain.exe
         if: env.SIGN_CODE == 'true'
@@ -91,10 +92,10 @@ jobs:
         shell: powershell
 
       - name: Build NetShiftService project
-        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
-        working-directory: D:\a
+        working-directory: D:\a\NetShift
 
       - name: Stamp version into NetShiftService.exe
         run: |
@@ -103,10 +104,10 @@ jobs:
         shell: powershell
 
       - name: Rebuild NetShiftService project after stamping
-        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
-        working-directory: D:\a
+        working-directory: D:\a\NetShift
 
       - name: Conditionally sign NetShiftService.exe
         if: env.SIGN_CODE == 'true'
