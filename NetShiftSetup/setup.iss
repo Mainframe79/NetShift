@@ -1,7 +1,10 @@
+#define MyAppVersion "1.0.0"
+
 [Setup]
 AppName=NetShift
-AppVersion=1.0.0
+AppVersion={#MyAppVersion}
 DefaultDirName={autopf}\NetShift
+DefaultGroupName=NetShift
 OutputDir=..\artifacts
 OutputBaseFilename=NetShiftInstaller
 SetupIconFile=..\..\NetShiftIcon.ico

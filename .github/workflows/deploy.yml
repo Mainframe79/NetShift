@@ -33,6 +33,13 @@ jobs:
         with:
           path: .
 
+      - name: Extract version from tag
+        run: |
+          $version = "${{ github.ref_name }}"
+          $version = $version -replace '^v', ''
+          echo "APP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: powershell
+
       - name: Debug repository structure
         run: dir "D:\a\NetShift\NetShift" -Recurse
         shell: powershell
@@ -89,8 +96,8 @@ jobs:
 
       - name: Stamp version into NetShiftMain.exe
         run: |
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "ProductVersion" "${{ github.ref_name }}"
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "ProductVersion" "${{ env.APP_VERSION }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "FileVersion" "${{ env.APP_VERSION }}"
         shell: powershell
 
       - name: Rebuild NetShiftMain project after stamping
@@ -127,8 +134,8 @@ jobs:
 
       - name: Stamp version into NetShiftService.exe
         run: |
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "ProductVersion" "${{ github.ref_name }}"
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "ProductVersion" "${{ env.APP_VERSION }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "FileVersion" "${{ env.APP_VERSION }}"
         shell: powershell
 
       - name: Rebuild NetShiftService project after stamping
@@ -207,7 +214,7 @@ jobs:
       - name: Build Inno Setup Installer
         run: |
           $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
-          ISCC.exe "${{ env.SetupPath }}\setup.iss" > "${{ env.ARTIFACTS_DIR }}\iscc.log" 2>&1
+          ISCC.exe "${{ env.SetupPath }}\setup.iss" /DMyAppVersion="${{ env.APP_VERSION }}" > "${{ env.ARTIFACTS_DIR }}\iscc.log" 2>&1
           if ($LASTEXITCODE -ne 0) {
             Get-Content "${{ env.ARTIFACTS_DIR }}\iscc.log"
             exit $LASTEXITCODE
