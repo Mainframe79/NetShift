@@ -91,14 +91,28 @@ var
 begin
   if not IsDotNet48Installed then
   begin
-    MsgBox('.NET Framework 4.8 is required. Please download and install it.', mbInformation, MB_OK);
-    ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOW, ewNoWait, ErrorCode);
-    WizardForm.Close;
+    if not WizardSilent then
+    begin
+      MsgBox('.NET Framework 4.8 is required. Please download and install it.', mbInformation, MB_OK);
+      ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOW, ewNoWait, ErrorCode);
+      WizardForm.Close;
+    end else
+    begin
+      // In silent mode, fail the installation
+      WizardForm.Close;
+    end;
   end;
   if not IsDotNet8Installed then
   begin
-    MsgBox('.NET 8 Desktop Runtime is required. Please download and install it.', mbInformation, MB_OK);
-    ShellExec('open', 'https://dotnet.microsoft.com/en-us/download/dotnet/8.0', '', '', SW_SHOW, ewNoWait, ErrorCode);
-    WizardForm.Close;
+    if not WizardSilent then
+    begin
+      MsgBox('.NET 8 Desktop Runtime is required. Please download and install it.', mbInformation, MB_OK);
+      ShellExec('open', 'https://dotnet.microsoft.com/en-us/download/dotnet/8.0', '', '', SW_SHOW, ewNoWait, ErrorCode);
+      WizardForm.Close;
+    end else
+    begin
+      // In silent mode, fail the installation
+      WizardForm.Close;
+    end;
   end;
 end;
