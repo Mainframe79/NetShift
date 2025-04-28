@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployment", "Deployment", "{73EC0E45-94B2-460E-8C5F-9DC08F34FFDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetShift", "NetShift\NetShift.csproj", "{4850F4CC-06FB-4958-BDD1-131B709564C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetShiftMain", "NetShiftMain\NetShiftMain.csproj", "{4850F4CC-06FB-4958-BDD1-131B709564C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetShift.Models", "NetShift.Models\NetShift.Models.csproj", "{CC24BEEB-1734-4D69-B760-9AA6BCB9850B}"
 EndProject

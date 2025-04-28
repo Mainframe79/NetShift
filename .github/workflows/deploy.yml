@@ -17,8 +17,8 @@ env:
   ARTIFACTS_DIR: ${{ github.workspace }}\artifacts
   SolutionPath: ${{ github.workspace }}\NetShift.sln
   SetupPath: ${{ github.workspace }}\NetShiftSetup
-  NetShiftBin: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows
-  NetShiftExe: ${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
+  NetShiftBin: ${{ github.workspace }}\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
+  NetShiftExe: ${{ github.workspace }}\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShift.exe
   NetShiftServiceBin: ${{ github.workspace }}\NetShiftService\bin\x64\Release
   NetShiftServiceExe: ${{ github.workspace }}\NetShiftService\bin\x64\Release\NetShiftService.exe
   NetShiftInstallerExe: ${{ github.workspace }}\artifacts\NetShiftInstaller.exe
@@ -48,8 +48,8 @@ jobs:
         run: nuget restore "${{ env.SolutionPath }}"
         shell: powershell
 
-      - name: Build NetShift project
-        run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
+      - name: Build NetShiftMain project
+        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
 
@@ -59,8 +59,8 @@ jobs:
           & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftExe }}" --set-version-string "FileVersion" "${{ github.ref_name }}"
         shell: powershell
 
-      - name: Rebuild NetShift project after stamping
-        run: msbuild NetShift\NetShift.csproj /p:Configuration=Release /p:Platform=x64
+      - name: Rebuild NetShiftMain project after stamping
+        run: msbuild NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
 
@@ -125,12 +125,18 @@ jobs:
         shell: powershell
 
       - name: Debug alternative NetShift build output directory
-        run: dir "${{ github.workspace }}\NetShift\bin\x64\Release\net8.0-windows" -Recurse
+        run: dir "${{ github.workspace }}\NetShiftMain\bin\x64\Release\net8.0-windows" -Recurse
         shell: powershell
         continue-on-error: true
 
       - name: Debug NetShiftService output directory
         run: dir "${{ env.NetShiftServiceBin }}" -Recurse
+        shell: powershell
+
+      - name: Download and Install Inno Setup
+        run: |
+          Invoke-WebRequest -Uri https://jrsoftware.org/download.php/is.exe -OutFile inno-setup-installer.exe
+          Start-Process -FilePath .\inno-setup-installer.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" -Wait
         shell: powershell
 
       - name: Build Inno Setup Installer
