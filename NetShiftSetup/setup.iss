@@ -30,7 +30,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Filename: "{dotnet40}\InstallUtil.exe"; Parameters: """{app}\NetShiftService.exe"""; Flags: runhidden; Description: "Install NetShift Service"
 
 [UninstallRun]
-Filename: "{dotnet40}\InstallUtil.exe"; Parameters: "/u ""{app}\NetShiftService.exe"""; Flags: runhidden; Description: "Uninstall NetShift Service"
+Filename: "{dotnet40}\InstallUtil.exe"; Parameters: "/u ""{app}\NetShiftService.exe"""; Flags: runhidden
 
 [Code]
 function IsDotNet48Installed: Boolean;
