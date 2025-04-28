@@ -2,7 +2,7 @@
 AppName=NetShift
 AppVersion=1.0.0
 DefaultDirName={autopf}\NetShift
-OutputDir=artifacts
+OutputDir=..\artifacts
 OutputBaseFilename=NetShiftInstaller
 SetupIconFile=..\..\NetShiftIcon.ico
 Compression=lzma
