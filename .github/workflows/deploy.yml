@@ -15,6 +15,7 @@ env:
   SIGN_CODE: true # Enable code signing
   BASE_DIR: D:\a\NetShift\NetShift
   ARTIFACTS_DIR: D:\a\NetShift\NetShift\artifacts
+  TEMP_DIR: D:\a\NetShift\NetShift\artifacts\temp
   SolutionPath: D:\a\NetShift\NetShift\NetShift.sln
   SetupPath: D:\a\NetShift\NetShift\NetShiftSetup
   NetShiftBin: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
@@ -75,6 +76,10 @@ jobs:
         run: New-Item -ItemType Directory -Force -Path "${{ env.ARTIFACTS_DIR }}"
         shell: powershell
 
+      - name: Create temp directory for signing
+        run: New-Item -ItemType Directory -Force -Path "${{ env.TEMP_DIR }}"
+        shell: powershell
+
       - name: Restore NuGet packages with nuget.exe
         run: |
           .\nuget.exe restore "${{ env.SolutionPath }}" -Verbosity detailed
@@ -120,15 +125,25 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftExe }}
-          output_path: ${{ env.ARTIFACTS_DIR }}
+          output_path: ${{ env.TEMP_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
         timeout-minutes: 10
 
+      - name: Debug CodeSignTool version and output
+        if: failure() && env.SIGN_CODE == 'true'
+        run: |
+          if (Test-Path "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat") {
+            D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat --version
+          }
+          dir "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0"
+        shell: powershell
+        continue-on-error: true
+
       - name: Replace NetShiftMain.exe with signed version
         if: env.SIGN_CODE == 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftMain.exe" "${{ env.NetShiftExe }}" -Force
+        run: Copy-Item "${{ env.TEMP_DIR }}\NetShiftMain.exe" "${{ env.NetShiftExe }}" -Force
         shell: powershell
 
       - name: Build NetShiftService project
@@ -159,15 +174,25 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftServiceExe }}
-          output_path: ${{ env.ARTIFACTS_DIR }}
+          output_path: ${{ env.TEMP_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
         timeout-minutes: 10
 
+      - name: Debug CodeSignTool version and output (NetShiftService)
+        if: failure() && env.SIGN_CODE == 'true'
+        run: |
+          if (Test-Path "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat") {
+            D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat --version
+          }
+          dir "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0"
+        shell: powershell
+        continue-on-error: true
+
       - name: Replace NetShiftService.exe with signed version
         if: env.SIGN_CODE == 'true'
-        run: Copy-Item "${{ env.ARTIFACTS_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
+        run: Copy-Item "${{ env.TEMP_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
         shell: powershell
 
       - name: Debug build output directory
@@ -243,11 +268,26 @@ jobs:
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
           file_path: ${{ env.NetShiftInstallerExe }}
-          output_path: ${{ env.ARTIFACTS_DIR }}
+          output_path: ${{ env.TEMP_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
         timeout-minutes: 10
+
+      - name: Debug CodeSignTool version and output (NetShiftInstaller)
+        if: failure() && env.SIGN_CODE == 'true'
+        run: |
+          if (Test-Path "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat") {
+            D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat --version
+          }
+          dir "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0"
+        shell: powershell
+        continue-on-error: true
+
+      - name: Replace NetShiftInstaller.exe with signed version
+        if: env.SIGN_CODE == 'true'
+        run: Copy-Item "${{ env.TEMP_DIR }}\NetShiftInstaller.exe" "${{ env.NetShiftInstallerExe }}" -Force
+        shell: powershell
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
