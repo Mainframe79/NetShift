@@ -1,7 +1,7 @@
 [Setup]
 AppName=NetShift
 AppVersion={#MyAppVersion}
-DefaultDirName={autopf}\NetShift
+DefaultDirName={pf64}\ZentrixLabs\NetShift
 DefaultGroupName=NetShift
 OutputDir=..\artifacts
 OutputBaseFilename=NetShiftInstaller
@@ -15,6 +15,7 @@ AppPublisherURL=https://zentrixlabs.com
 AppSupportURL=https://zentrixlabs.com/support
 AppUpdatesURL=https://zentrixlabs.com/updates
 SetupLogging=yes
+ArchitecturesInstallIn64BitMode=x64
 
 [Files]
 Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
