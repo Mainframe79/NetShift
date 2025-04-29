@@ -112,7 +112,7 @@ jobs:
 
       - name: Conditionally sign NetShiftMain.exe
         if: env.SIGN_CODE == 'true'
-        uses: sslcom/esigner-codesign@v1.3.2
+        uses: sslcom/esigner-codesign@develop
         with:
           command: sign
           username: ${{ secrets.CODESIGN_USERNAME }}
@@ -151,7 +151,7 @@ jobs:
 
       - name: Conditionally sign NetShiftService.exe
         if: env.SIGN_CODE == 'true'
-        uses: sslcom/esigner-codesign@v1.3.2
+        uses: sslcom/esigner-codesign@develop
         with:
           command: sign
           username: ${{ secrets.CODESIGN_USERNAME }}
@@ -235,7 +235,7 @@ jobs:
 
       - name: Conditionally sign NetShiftInstaller.exe
         if: env.SIGN_CODE == 'true'
-        uses: sslcom/esigner-codesign@v1.3.2
+        uses: sslcom/esigner-codesign@develop
         with:
           command: sign
           username: ${{ secrets.CODESIGN_USERNAME }}
