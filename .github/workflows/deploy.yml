@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 env:
-  SIGN_CODE: false # 🔥 Toggle code signing (still disabled until testing is complete)
+  SIGN_CODE: true # 🔥 Toggle code signing (still disabled until testing is complete)
   BASE_DIR: D:\a\NetShift\NetShift
   ARTIFACTS_DIR: D:\a\NetShift\NetShift\artifacts
   SolutionPath: D:\a\NetShift\NetShift\NetShift.sln
