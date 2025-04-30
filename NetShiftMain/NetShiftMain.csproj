@@ -32,6 +32,8 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<ItemGroup>
+		<None Remove="Assets\Orbitron-Bold.ttf" />
+		<None Remove="Assets\Orbitron-Regular.ttf" />
 		<None Remove="Assets\ZentrixLabs_Logo.png" />
 	</ItemGroup>
 
@@ -45,6 +47,8 @@
 		<Resource Include="Assets\NetShiftIcon.ico">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Resource>
+		<Resource Include="Assets\Orbitron-Bold.ttf" />
+		<Resource Include="Assets\Orbitron-Regular.ttf" />
 		<Content Include="Assets\ZentrixLabs_Logo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
