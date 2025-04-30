@@ -1,7 +1,6 @@
 ﻿using System.ServiceModel;
-using NetShift.Models;
 
-namespace NetShiftService
+namespace NetShift.Models
 {
     [ServiceContract]
     public interface IIPChangerService

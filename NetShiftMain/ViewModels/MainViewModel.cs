@@ -3,17 +3,16 @@ using System.Collections.ObjectModel;
 using System.Management;
 using System.Windows;
 using System.Windows.Input;
-using System.ServiceModel;
 using NetShift.Models;
-using NetShift.Views;
-using NetShift.ServiceReferences;
 using System.Text.Json;
+using NetShift.Views;
 
 namespace NetShift.ViewModels
 {
     public class MainViewModel : NotifyPropertyChangedBase
     {
         private readonly string _presetsFilePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NetShift", "presets.json");
+        private readonly IIPChangerService _serviceClient;
 
         public ObservableCollection<string> NetworkAdapters { get; } = new ObservableCollection<string>();
         public ObservableCollection<Preset> Presets { get; } = new ObservableCollection<Preset>();
@@ -101,6 +100,8 @@ namespace NetShift.ViewModels
 
         public MainViewModel()
         {
+            _serviceClient = new NetShiftClient();
+
             ApplyCommand = new RelayCommand(
                 Apply,
                 _ => !string.IsNullOrWhiteSpace(SelectedAdapter) && !string.IsNullOrWhiteSpace(IpAddress) && !string.IsNullOrWhiteSpace(SubnetMask)
@@ -118,11 +119,8 @@ namespace NetShift.ViewModels
                 _ => !string.IsNullOrWhiteSpace(SelectedAdapter)
             );
             Presets = new ObservableCollection<Preset>();
-            // Add a "None" preset
             Presets.Add(new Preset { Name = "None" });
-            // Load existing presets (e.g., from a file or database)
             LoadPresets();
-            // Default to "None"
             SelectedPreset = Presets[0];
             LoadNetworkAdapters();
         }
@@ -140,7 +138,6 @@ namespace NetShift.ViewModels
                 }
             }
 
-            // Default to "Ethernet" if it exists, otherwise the first NIC
             if (NetworkAdapters.Contains("Ethernet"))
             {
                 SelectedAdapter = "Ethernet";
@@ -167,7 +164,7 @@ namespace NetShift.ViewModels
                     {
                         foreach (var preset in presets)
                         {
-                            if (preset.Name != "None") // Ensure "None" isn't duplicated
+                            if (preset.Name != "None")
                             {
                                 Presets.Add(preset);
                             }
@@ -219,7 +216,6 @@ namespace NetShift.ViewModels
 
         private void Apply(object? parameter)
         {
-            // Validate the selected adapter
             if (string.IsNullOrEmpty(SelectedAdapter))
             {
                 throw new InvalidOperationException("No network adapter selected. Please select an adapter from the dropdown.");
@@ -236,29 +232,8 @@ namespace NetShift.ViewModels
                     Dns = Dns ?? string.Empty
                 };
 
-                using (var channelFactory = new ChannelFactory<IIPChangerService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/IPChangerService")))
-                {
-                    IIPChangerService? service = null;
-                    try
-                    {
-                        channelFactory.Open();
-                        service = channelFactory.CreateChannel();
-                        service.SetStaticIP(preset);
-                        ((IClientChannel)service).Close();
-                        channelFactory.Close();
-                        MessageBox.Show("IP settings updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Ensure the channel is aborted if it faults
-                        if (service != null)
-                        {
-                            ((IClientChannel)service).Abort();
-                        }
-                        channelFactory.Abort();
-                        MessageBox.Show($"Failed to update IP settings: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+                _serviceClient.SetStaticIP(preset);
+                MessageBox.Show("IP settings updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -275,13 +250,8 @@ namespace NetShift.ViewModels
                     throw new InvalidOperationException("No network adapter selected. Please select an adapter from the dropdown.");
                 }
 
-                using (var channelFactory = new ChannelFactory<IIPChangerService>(new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/IPChangerService")))
-                {
-                    var service = channelFactory.CreateChannel();
-                    service.ResetToDhcp(SelectedAdapter);
-                }
+                _serviceClient.ResetToDhcp(SelectedAdapter);
 
-                // Clear the UI fields
                 IpAddress = null;
                 SubnetMask = null;
                 Gateway = null;

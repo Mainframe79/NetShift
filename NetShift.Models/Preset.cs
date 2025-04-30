@@ -1,23 +1,15 @@
-﻿using System.Runtime.Serialization;
-
-namespace NetShift.Models
+﻿namespace NetShift.Models
 {
-    [DataContract(Namespace = "http://NetShift.Models")]
     public class Preset
     {
-        [DataMember]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        [DataMember]
-        public string IpAddress { get; set; }
+        public string? IpAddress { get; set; }
 
-        [DataMember]
-        public string SubnetMask { get; set; }
+        public string? SubnetMask { get; set; }
 
-        [DataMember]
-        public string Gateway { get; set; }
+        public string? Gateway { get; set; }
 
-        [DataMember]
-        public string Dns { get; set; }
+        public string? Dns { get; set; }
     }
 }
