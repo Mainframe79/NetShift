@@ -298,7 +298,7 @@ jobs:
           $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
           ISCC.exe "${{ env.SetupPath }}\setup.iss" /DMyAppVersion="${{ env.APP_VERSION }}" > "${{ env.ARTIFACTS_DIR }}\iscc.log" 2>&1
           if ($LASTEXITCODE -ne 0) {
-            Get-Content "${{羁 env.ARTIFACTS_DIR }}\iscc.log"
+            Get-Content "${{ env.ARTIFACTS_DIR }}\iscc.log"
             exit $LASTEXITCODE
           }
         shell: powershell
