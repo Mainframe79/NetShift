@@ -12,16 +12,18 @@ permissions:
   id-token: write
 
 env:
-  SIGN_CODE: true # Enable code signing
+  SIGN_CODE: false # Enable code signing
   BASE_DIR: D:\a\NetShift\NetShift
   ARTIFACTS_DIR: D:\a\NetShift\NetShift\artifacts
   TEMP_DIR: D:\a\NetShift\NetShift\artifacts\temp
   SolutionPath: D:\a\NetShift\NetShift\NetShift.sln
   SetupPath: D:\a\NetShift\NetShift\NetShiftSetup
-  NetShiftBin: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
-  NetShiftExe: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShiftMain.exe
-  NetShiftServiceBin: D:\a\NetShift\NetShift\NetShiftService\bin\x64\Release
-  NetShiftServiceExe: D:\a\NetShift\NetShift\NetShiftService\bin\x64\Release\NetShiftService.exe
+  NetShiftBin: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows
+  NetShiftExe: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\NetShiftMain.exe
+  NetShiftServiceCppBin: D:\a\NetShift\NetShift\NetShiftServiceCpp\x64\Release
+  NetShiftServiceCppExe: D:\a\NetShift\NetShift\NetShiftServiceCpp\x64\Release\NetShiftServiceCpp.exe
+  NetShiftServiceInstallerBin: D:\a\NetShift\NetShift\NetShiftServiceInstaller\x64\Release
+  NetShiftServiceInstallerExe: D:\a\NetShift\NetShift\NetShiftServiceInstaller\x64\Release\NetShiftServiceInstaller.exe
   NetShiftInstallerExe: D:\a\NetShift\NetShift\artifacts\NetShiftInstaller.exe
   RCEDIT_PATH: D:\a\NetShift\NetShift\tools\rcedit\rcedit-x64.exe
 
@@ -146,25 +148,25 @@ jobs:
         run: Copy-Item "${{ env.TEMP_DIR }}\NetShiftMain.exe" "${{ env.NetShiftExe }}" -Force
         shell: powershell
 
-      - name: Build NetShiftService project
-        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+      - name: Build NetShiftServiceCpp project
+        run: msbuild NetShift\NetShiftServiceCpp\NetShiftServiceCpp.vcxproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
         working-directory: D:\a\NetShift
 
-      - name: Stamp version into NetShiftService.exe
+      - name: Stamp version into NetShiftServiceCpp.exe
         run: |
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "ProductVersion" "${{ env.APP_VERSION }}"
-          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceExe }}" --set-version-string "FileVersion" "${{ env.APP_VERSION }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceCppExe }}" --set-version-string "ProductVersion" "${{ env.APP_VERSION }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceCppExe }}" --set-version-string "FileVersion" "${{ env.APP_VERSION }}"
         shell: powershell
 
-      - name: Rebuild NetShiftService project after stamping
-        run: msbuild NetShift\NetShiftService\NetShiftService.csproj /p:Configuration=Release /p:Platform=x64
+      - name: Rebuild NetShiftServiceCpp project after stamping
+        run: msbuild NetShift\NetShiftServiceCpp\NetShiftServiceCpp.vcxproj /p:Configuration=Release /p:Platform=x64
         env:
           UseSharedCompilation: false
         working-directory: D:\a\NetShift
 
-      - name: Conditionally sign NetShiftService.exe
+      - name: Conditionally sign NetShiftServiceCpp.exe
         if: env.SIGN_CODE == 'true'
         uses: sslcom/esigner-codesign@develop
         with:
@@ -173,14 +175,14 @@ jobs:
           password: ${{ secrets.CODESIGN_PASSWORD }}
           credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
-          file_path: ${{ env.NetShiftServiceExe }}
+          file_path: ${{ env.NetShiftServiceCppExe }}
           output_path: ${{ env.TEMP_DIR }}
           environment_name: PROD
           signing_method: v2
           malware_block: false
         timeout-minutes: 10
 
-      - name: Debug CodeSignTool version and output (NetShiftService)
+      - name: Debug CodeSignTool version and output (NetShiftServiceCpp)
         if: failure() && env.SIGN_CODE == 'true'
         run: |
           if (Test-Path "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat") {
@@ -190,9 +192,58 @@ jobs:
         shell: powershell
         continue-on-error: true
 
-      - name: Replace NetShiftService.exe with signed version
+      - name: Replace NetShiftServiceCpp.exe with signed version
         if: env.SIGN_CODE == 'true'
-        run: Copy-Item "${{ env.TEMP_DIR }}\NetShiftService.exe" "${{ env.NetShiftServiceExe }}" -Force
+        run: Copy-Item "${{ env.TEMP_DIR }}\NetShiftServiceCpp.exe" "${{ env.NetShiftServiceCppExe }}" -Force
+        shell: powershell
+
+      - name: Build NetShiftServiceInstaller project
+        run: msbuild NetShift\NetShiftServiceInstaller\NetShiftServiceInstaller.vcxproj /p:Configuration=Release /p:Platform=x64
+        env:
+          UseSharedCompilation: false
+        working-directory: D:\a\NetShift
+
+      - name: Stamp version into NetShiftServiceInstaller.exe
+        run: |
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceInstallerExe }}" --set-version-string "ProductVersion" "${{ env.APP_VERSION }}"
+          & "${{ env.RCEDIT_PATH }}" "${{ env.NetShiftServiceInstallerExe }}" --set-version-string "FileVersion" "${{ env.APP_VERSION }}"
+        shell: powershell
+
+      - name: Rebuild NetShiftServiceInstaller project after stamping
+        run: msbuild NetShift\NetShiftServiceInstaller\NetShiftServiceInstaller.vcxproj /p:Configuration=Release /p:Platform=x64
+        env:
+          UseSharedCompilation: false
+        working-directory: D:\a\NetShift
+
+      - name: Conditionally sign NetShiftServiceInstaller.exe
+        if: env.SIGN_CODE == 'true'
+        uses: sslcom/esigner-codesign@develop
+        with:
+          command: sign
+          username: ${{ secrets.CODESIGN_USERNAME }}
+          password: ${{ secrets.CODESIGN_PASSWORD }}
+          credential_id: ${{ secrets.CODESIGN_CREDENTIAL_ID }}
+          totp_secret: ${{ secrets.CODESIGN_TOTP_SECRET }}
+          file_path: ${{ env.NetShiftServiceInstallerExe }}
+          output_path: ${{ env.TEMP_DIR }}
+          environment_name: PROD
+          signing_method: v2
+          malware_block: false
+        timeout-minutes: 10
+
+      - name: Debug CodeSignTool version and output (NetShiftServiceInstaller)
+        if: failure() && env.SIGN_CODE == 'true'
+        run: |
+          if (Test-Path "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat") {
+            D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0\CodeSignTool.bat --version
+          }
+          dir "D:\a\NetShift\NetShift\codesign\CodeSignTool-v1.3.0"
+        shell: powershell
+        continue-on-error: true
+
+      - name: Replace NetShiftServiceInstaller.exe with signed version
+        if: env.SIGN_CODE == 'true'
+        run: Copy-Item "${{ env.TEMP_DIR }}\NetShiftServiceInstaller.exe" "${{ env.NetShiftServiceInstallerExe }}" -Force
         shell: powershell
 
       - name: Debug build output directory
@@ -200,13 +251,13 @@ jobs:
         shell: powershell
         continue-on-error: true
 
-      - name: Debug alternative NetShift build output directory
-        run: dir "D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows" -Recurse
+      - name: Debug NetShiftServiceCpp output directory
+        run: dir "${{ env.NetShiftServiceCppBin }}" -Recurse
         shell: powershell
         continue-on-error: true
 
-      - name: Debug NetShiftService output directory
-        run: dir "${{ env.NetShiftServiceBin }}" -Recurse
+      - name: Debug NetShiftServiceInstaller output directory
+        run: dir "${{ env.NetShiftServiceInstallerBin }}" -Recurse
         shell: powershell
         continue-on-error: true
 
@@ -223,7 +274,7 @@ jobs:
         working-directory: D:\a\NetShift
 
       - name: Copy NetShiftIcon.ico to working directory
-        run: Copy-Item "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico" -Destination "NetShiftIcon.ico"
+        run: Copy-Item "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\Assets\NetShiftIcon.ico" -Destination "NetShiftIcon.ico"
         shell: powershell
         working-directory: D:\a\NetShift
 
@@ -247,7 +298,7 @@ jobs:
           $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
           ISCC.exe "${{ env.SetupPath }}\setup.iss" /DMyAppVersion="${{ env.APP_VERSION }}" > "${{ env.ARTIFACTS_DIR }}\iscc.log" 2>&1
           if ($LASTEXITCODE -ne 0) {
-            Get-Content "${{ env.ARTIFACTS_DIR }}\iscc.log"
+            Get-Content "${{羁 env.ARTIFACTS_DIR }}\iscc.log"
             exit $LASTEXITCODE
           }
         shell: powershell
