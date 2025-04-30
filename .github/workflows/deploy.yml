@@ -18,8 +18,8 @@ env:
   TEMP_DIR: D:\a\NetShift\NetShift\artifacts\temp
   SolutionPath: D:\a\NetShift\NetShift\NetShift.sln
   SetupPath: D:\a\NetShift\NetShift\NetShiftSetup
-  NetShiftBin: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows
-  NetShiftExe: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\NetShiftMain.exe
+  NetShiftBin: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
+  NetShiftExe: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShiftMain.exe
   NetShiftServiceCppBin: D:\a\NetShift\NetShift\NetShiftServiceCpp\x64\Release
   NetShiftServiceCppExe: D:\a\NetShift\NetShift\NetShiftServiceCpp\x64\Release\NetShiftServiceCpp.exe
   NetShiftServiceInstallerBin: D:\a\NetShift\NetShift\NetShiftServiceInstaller\x64\Release
@@ -274,7 +274,7 @@ jobs:
         working-directory: D:\a\NetShift
 
       - name: Copy NetShiftIcon.ico to working directory
-        run: Copy-Item "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\Assets\NetShiftIcon.ico" -Destination "NetShiftIcon.ico"
+        run: Copy-Item "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico" -Destination "NetShiftIcon.ico"
         shell: powershell
         working-directory: D:\a\NetShift
 
