@@ -10,7 +10,6 @@ namespace NetShift.Views
         public About()
         {
             InitializeComponent();
-            ZentrixLogo.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/ZentrixLabs_Logo.png"));
 
         }
 
