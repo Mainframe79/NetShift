@@ -1,7 +1,7 @@
 
 # NetShift
 
-![Build](https://img.shields.io/github/actions/workflow/status/Mainframe79/NetShift/deploy.yml?branch=main)
+![Build](https://img.shields.io/github/actions/workflow/status/Mainframe79/NetShift/deploy.yml?event=push)
 ![Release](https://img.shields.io/github/v/release/Mainframe79/NetShift)
 ![License](https://img.shields.io/github/license/Mainframe79/NetShift)
 ![Last Commit](https://img.shields.io/github/last-commit/Mainframe79/NetShift)
