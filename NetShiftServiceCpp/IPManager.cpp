@@ -18,9 +18,6 @@ DWORD SafeSizeToDword(size_t size) {
     return static_cast<DWORD>(size);
 }
 
-
-
-
 DWORD RunNetshCommand(const std::wstring& command, const std::wstring& logFile) {
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
