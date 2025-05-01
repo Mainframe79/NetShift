@@ -91,3 +91,46 @@ bool IsAdapterActive(const std::wstring& adapterName) {
     return false;
 }
 
+DWORD SetStaticIP(const std::wstring& presetData) {
+    std::wstringstream ss(presetData);
+    std::vector<std::wstring> parts;
+    std::wstring segment;
+    while (std::getline(ss, segment, L'|')) {
+        parts.push_back(segment);
+    }
+
+    if (parts.size() < 3) {
+        LogMessage(L"SetStaticIP: Invalid preset format.", L"service_error.log");
+        return ERROR_INVALID_PARAMETER;
+    }
+
+    const std::wstring& adapter = parts[0];
+    const std::wstring& ip = parts[1];
+    const std::wstring& mask = parts[2];
+    const std::wstring gateway = parts.size() > 3 ? parts[3] : L"";
+    const std::wstring dns = parts.size() > 4 ? parts[4] : L"";
+
+    std::wstring cmd = std::format(L"interface ipv4 set address name=\"{}\" source=static address={} mask={} {}",
+        adapter, ip, mask,
+        gateway.empty() ? L"gateway=none" : std::format(L"gateway={} gwmetric=1", gateway));
+
+    DWORD result = RunNetshCommand(cmd, L"netsh_output_static.log");
+    if (result != ERROR_SUCCESS) return result;
+
+    if (!dns.empty()) {
+        cmd = std::format(L"interface ipv4 set dns name=\"{}\" source=static address={}", adapter, dns);
+        result = RunNetshCommand(cmd, L"netsh_output_static.log");
+        if (result != ERROR_SUCCESS) return result;
+    }
+
+    return ERROR_SUCCESS;
+}
+
+DWORD ResetToDhcp(const std::wstring& adapterName) {
+    std::wstring cmd = std::format(L"interface ipv4 set address name=\"{}\" source=dhcp", adapterName);
+    DWORD result = RunNetshCommand(cmd, L"netsh_output_dhcp.log");
+    if (result != ERROR_SUCCESS) return result;
+
+    cmd = std::format(L"interface ipv4 set dns name=\"{}\" source=dhcp", adapterName);
+    return RunNetshCommand(cmd, L"netsh_output_dhcp.log");
+}
