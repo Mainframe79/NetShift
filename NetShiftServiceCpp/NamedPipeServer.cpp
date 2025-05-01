@@ -3,28 +3,38 @@
 #include "Logger.h"
 #include <string>
 #include <sddl.h>
+#include <format>
 
 extern PSECURITY_DESCRIPTOR pSD;
 extern HANDLE hPipe;
 
 bool running = true;
 
+std::wstring GetErrorMessage(DWORD errorCode) {
+    wchar_t* msgBuffer = nullptr;
+    FormatMessageW(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr, errorCode, 0, (LPWSTR)&msgBuffer, 0, nullptr);
+
+    std::wstring message = msgBuffer ? msgBuffer : L"Unknown error";
+    if (msgBuffer)
+        LocalFree(msgBuffer);
+
+    return message;
+}
+
 DWORD WINAPI PipeServerThread(LPVOID lpParam) {
     wchar_t buffer[1024];
     DWORD bytesRead;
 
-    // Create a security descriptor that allows access to authenticated users
-    SECURITY_ATTRIBUTES sa;
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = FALSE;
+    SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), nullptr, FALSE };
 
     if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(
-        L"D:(A;;GA;;;AU)", // Allow full access to Authenticated Users
+        L"D:(A;;GA;;;AU)",
         SDDL_REVISION_1,
         &pSD,
-        nullptr))
-    {
-        LogMessage(L"ConvertStringSecurityDescriptorToSecurityDescriptorW failed: " + std::to_wstring(GetLastError()), L"service_error.log");
+        nullptr)) {
+        LogMessage(std::format(L"ConvertStringSecurityDescriptorToSecurityDescriptorW failed: {}", GetLastError()), L"service_error.log");
         return 1;
     }
 
@@ -42,7 +52,7 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
             &sa);
 
         if (hPipe == INVALID_HANDLE_VALUE) {
-            LogMessage(L"CreateNamedPipe failed: " + std::to_wstring(GetLastError()), L"service_error.log");
+            LogMessage(std::format(L"CreateNamedPipe failed: {}", GetLastError()), L"service_error.log");
             LocalFree(pSD);
             return 1;
         }
@@ -54,34 +64,34 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
 
                 size_t pos = message.find(L"|");
                 if (pos == std::wstring::npos) {
-                    LogMessage(L"Invalid message format: " + message, L"service_error.log");
+                    LogMessage(std::format(L"Invalid message format: {}", message), L"service_error.log");
                     continue;
                 }
 
                 std::wstring command = message.substr(0, pos);
                 std::wstring params = message.substr(pos + 1);
+                std::wstring response;
 
-                std::wstring response = L"Success";
                 if (command == L"SetStaticIP") {
                     DWORD result = SetStaticIP(params);
                     if (result == ERROR_SUCCESS) {
-                        LogMessage(L"SetStaticIP successfully applied for parameters: " + params, L"service_log.log");
+                        LogMessage(std::format(L"SetStaticIP successfully applied for parameters: {}", params), L"service_log.log");
                         response = L"SetStaticIP: Success";
                     }
                     else {
-                        LogMessage(L"SetStaticIP failed with error: " + std::to_wstring(result), L"service_error.log");
-                        response = L"SetStaticIP: Error " + std::to_wstring(result);
+                        LogMessage(std::format(L"SetStaticIP failed with error: {} ({})", result, GetErrorMessage(result)), L"service_error.log");
+                        response = std::format(L"SetStaticIP: Error {} ({})", result, GetErrorMessage(result));
                     }
                 }
                 else if (command == L"ResetToDhcp") {
                     DWORD result = ResetToDhcp(params);
-                    if (result != ERROR_SUCCESS) {
-                        response = L"Error: " + std::to_wstring(result);
+                    if (result == ERROR_SUCCESS) {
+                        LogMessage(std::format(L"ResetToDhcp successfully applied for adapter: {}", params), L"service_log.log");
                         response = L"ResetToDhcp: Success";
                     }
                     else {
-                        LogMessage(L"ResetToDhcp failed with error: " + std::to_wstring(result), L"service_error.log");
-                        response = L"ResetToDhcp: Error " + std::to_wstring(result);
+                        LogMessage(std::format(L"ResetToDhcp failed with error: {} ({})", result, GetErrorMessage(result)), L"service_error.log");
+                        response = std::format(L"ResetToDhcp: Error {} ({})", result, GetErrorMessage(result));
                     }
                 }
                 else if (command == L"Shutdown") {
@@ -95,6 +105,7 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
                 WriteFile(hPipe, response.c_str(), static_cast<DWORD>((response.length() + 1) * sizeof(wchar_t)), nullptr, nullptr);
             }
         }
+
         DisconnectNamedPipe(hPipe);
         CloseHandle(hPipe);
     }
