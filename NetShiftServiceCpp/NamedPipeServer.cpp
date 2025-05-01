@@ -64,14 +64,24 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
                 std::wstring response = L"Success";
                 if (command == L"SetStaticIP") {
                     DWORD result = SetStaticIP(params);
-                    if (result != ERROR_SUCCESS) {
-                        response = L"Error: " + std::to_wstring(result);
+                    if (result == ERROR_SUCCESS) {
+                        LogMessage(L"SetStaticIP successfully applied for parameters: " + params, L"service_log.log");
+                        response = L"SetStaticIP: Success";
+                    }
+                    else {
+                        LogMessage(L"SetStaticIP failed with error: " + std::to_wstring(result), L"service_error.log");
+                        response = L"SetStaticIP: Error " + std::to_wstring(result);
                     }
                 }
                 else if (command == L"ResetToDhcp") {
                     DWORD result = ResetToDhcp(params);
                     if (result != ERROR_SUCCESS) {
                         response = L"Error: " + std::to_wstring(result);
+                        response = L"ResetToDhcp: Success";
+                    }
+                    else {
+                        LogMessage(L"ResetToDhcp failed with error: " + std::to_wstring(result), L"service_error.log");
+                        response = L"ResetToDhcp: Error " + std::to_wstring(result);
                     }
                 }
                 else if (command == L"Shutdown") {

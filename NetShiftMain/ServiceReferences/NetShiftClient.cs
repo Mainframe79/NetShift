@@ -39,12 +39,26 @@ namespace NetShift
 
             try
             {
-                using (var pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
+                using (var pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut)) // Bidirectional
                 {
                     pipeClient.Connect(5000);
+
+                    // Send the command
                     byte[] buffer = Encoding.Unicode.GetBytes(message);
                     pipeClient.Write(buffer, 0, buffer.Length);
-                    LogMessage("SetStaticIP request sent successfully");
+                    pipeClient.Flush();
+
+                    // Read the response
+                    byte[] responseBuffer = new byte[1024];
+                    int bytesRead = pipeClient.Read(responseBuffer, 0, responseBuffer.Length);
+                    string response = Encoding.Unicode.GetString(responseBuffer, 0, bytesRead);
+
+                    LogMessage($"Response from service: {response}");
+
+                    if (!response.Contains("Success"))
+                    {
+                        throw new InvalidOperationException($"Service returned an error: {response}");
+                    }
                 }
             }
             catch (TimeoutException)
@@ -59,6 +73,7 @@ namespace NetShift
             }
         }
 
+
         public void ResetToDhcp(string adapterName)
         {
             if (string.IsNullOrEmpty(adapterName))
@@ -69,12 +84,26 @@ namespace NetShift
 
             try
             {
-                using (var pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
+                using (var pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut)) // Bidirectional
                 {
                     pipeClient.Connect(5000);
+
+                    // Send the command
                     byte[] buffer = Encoding.Unicode.GetBytes(message);
                     pipeClient.Write(buffer, 0, buffer.Length);
-                    LogMessage("ResetToDhcp request sent successfully");
+                    pipeClient.Flush();
+
+                    // Read the response
+                    byte[] responseBuffer = new byte[1024];
+                    int bytesRead = pipeClient.Read(responseBuffer, 0, responseBuffer.Length);
+                    string response = Encoding.Unicode.GetString(responseBuffer, 0, bytesRead);
+
+                    LogMessage($"Response from service: {response}");
+
+                    if (!response.Contains("Success"))
+                    {
+                        throw new InvalidOperationException($"Service returned an error: {response}");
+                    }
                 }
             }
             catch (TimeoutException)
@@ -88,5 +117,6 @@ namespace NetShift
                 throw new InvalidOperationException($"Failed to reset to DHCP: {ex.Message}", ex);
             }
         }
+
     }
 }
