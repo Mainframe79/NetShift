@@ -16,7 +16,6 @@ AppSupportURL=https://zentrixlabs.com/support
 AppUpdatesURL=https://zentrixlabs.com/updates
 SetupLogging=yes
 ArchitecturesInstallIn64BitMode=x64
-UninstallSilent=yes
 UninstallLogMode=append
 
 [Files]
