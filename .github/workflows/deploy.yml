@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 env:
-  SIGN_CODE: false # Enable code signing
+  SIGN_CODE: true # Enable code signing
   BASE_DIR: D:\a\NetShift\NetShift
   ARTIFACTS_DIR: D:\a\NetShift\NetShift\artifacts
   TEMP_DIR: D:\a\NetShift\NetShift\artifacts\temp
