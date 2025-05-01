@@ -91,4 +91,3 @@ bool IsAdapterActive(const std::wstring& adapterName) {
     return false;
 }
 
-#include "IPManager_RegistryModernized.cpp"
