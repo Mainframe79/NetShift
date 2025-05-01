@@ -4,24 +4,25 @@
 #include <string>
 #include <sddl.h>
 
+extern PSECURITY_DESCRIPTOR pSD;
+extern HANDLE hPipe;
+
+bool running = true;
+
 DWORD WINAPI PipeServerThread(LPVOID lpParam) {
-    HANDLE hPipe;
     wchar_t buffer[1024];
     DWORD bytesRead;
 
-    // Create a security descriptor that allows access only to administrators
+    // Create a security descriptor that allows access to authenticated users
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = FALSE;
 
-    // Define a security descriptor in SDDL format
-    // "D:(A;;GA;;;BA)" means: Deny all access by default, Allow Generic All (GA) to Built-in Administrators (BA)
-    PSECURITY_DESCRIPTOR pSD = NULL;
     if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(
         L"D:(A;;GA;;;AU)", // Allow full access to Authenticated Users
         SDDL_REVISION_1,
         &pSD,
-        NULL))
+        nullptr))
     {
         LogMessage(L"ConvertStringSecurityDescriptorToSecurityDescriptorW failed: " + std::to_wstring(GetLastError()), L"service_error.log");
         return 1;
@@ -29,7 +30,7 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
 
     sa.lpSecurityDescriptor = pSD;
 
-    while (true) {
+    while (running) {
         hPipe = CreateNamedPipe(
             PIPE_NAME,
             PIPE_ACCESS_DUPLEX,
@@ -38,7 +39,7 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
             1024,
             1024,
             0,
-            &sa); // Pass the security attributes
+            &sa);
 
         if (hPipe == INVALID_HANDLE_VALUE) {
             LogMessage(L"CreateNamedPipe failed: " + std::to_wstring(GetLastError()), L"service_error.log");
@@ -46,23 +47,42 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
             return 1;
         }
 
-        if (ConnectNamedPipe(hPipe, NULL) || GetLastError() == ERROR_PIPE_CONNECTED) {
-            while (ReadFile(hPipe, buffer, sizeof(buffer) - sizeof(wchar_t), &bytesRead, NULL) && bytesRead > 0) {
+        if (ConnectNamedPipe(hPipe, nullptr) || GetLastError() == ERROR_PIPE_CONNECTED) {
+            while (ReadFile(hPipe, buffer, sizeof(buffer) - sizeof(wchar_t), &bytesRead, nullptr) && bytesRead > 0) {
                 buffer[bytesRead / sizeof(wchar_t)] = L'\0';
                 std::wstring message(buffer);
 
                 size_t pos = message.find(L"|");
-                if (pos == std::wstring::npos) continue;
+                if (pos == std::wstring::npos) {
+                    LogMessage(L"Invalid message format: " + message, L"service_error.log");
+                    continue;
+                }
 
                 std::wstring command = message.substr(0, pos);
                 std::wstring params = message.substr(pos + 1);
 
+                std::wstring response = L"Success";
                 if (command == L"SetStaticIP") {
-                    SetStaticIP(params);
+                    DWORD result = SetStaticIP(params);
+                    if (result != ERROR_SUCCESS) {
+                        response = L"Error: " + std::to_wstring(result);
+                    }
                 }
                 else if (command == L"ResetToDhcp") {
-                    ResetToDhcp(params);
+                    DWORD result = ResetToDhcp(params);
+                    if (result != ERROR_SUCCESS) {
+                        response = L"Error: " + std::to_wstring(result);
+                    }
                 }
+                else if (command == L"Shutdown") {
+                    running = false;
+                    response = L"Server shutting down";
+                }
+                else {
+                    response = L"Unknown command";
+                }
+
+                WriteFile(hPipe, response.c_str(), (response.length() + 1) * sizeof(wchar_t), nullptr, nullptr);
             }
         }
         DisconnectNamedPipe(hPipe);

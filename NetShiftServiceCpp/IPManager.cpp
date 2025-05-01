@@ -18,10 +18,19 @@ DWORD SafeSizeToDword(size_t size) {
     return static_cast<DWORD>(size);
 }
 
+void ResetAdapter(const std::wstring& adapterName) {
+    std::wstring disableCommand = L"interface set interface name=\"" + adapterName + L"\" admin=disable";
+    RunNetshCommand(disableCommand, L"netsh_reset.log");
+
+    std::wstring enableCommand = L"interface set interface name=\"" + adapterName + L"\" admin=enable";
+    RunNetshCommand(enableCommand, L"netsh_reset.log");
+}
+
+
 DWORD RunNetshCommand(const std::wstring& command, const std::wstring& logFile) {
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.lpSecurityDescriptor = NULL;
+    sa.lpSecurityDescriptor = nullptr;
     sa.bInheritHandle = TRUE;
 
     HANDLE hStdOutRead, hStdOutWrite;
@@ -36,7 +45,7 @@ DWORD RunNetshCommand(const std::wstring& command, const std::wstring& logFile) 
     PROCESS_INFORMATION pi;
     std::wstring cmd = L"netsh " + command;
 
-    if (!CreateProcess(NULL, (LPWSTR)cmd.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+    if (!CreateProcess(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
         LogMessage(L"CreateProcess failed: " + std::to_wstring(GetLastError()), logFile);
         return GetLastError();
     }
@@ -50,7 +59,7 @@ DWORD RunNetshCommand(const std::wstring& command, const std::wstring& logFile) 
     DWORD bytesRead;
     std::wstring output;
     wchar_t buffer[1024];
-    while (ReadFile(hStdOutRead, buffer, sizeof(buffer) - sizeof(wchar_t), &bytesRead, NULL) && bytesRead > 0) {
+    while (ReadFile(hStdOutRead, buffer, sizeof(buffer) - sizeof(wchar_t), &bytesRead, nullptr) && bytesRead > 0) {
         buffer[bytesRead / sizeof(wchar_t)] = L'\0';
         output += buffer;
     }
@@ -66,18 +75,14 @@ DWORD RunNetshCommand(const std::wstring& command, const std::wstring& logFile) 
 
 bool IsAdapterActive(const std::wstring& adapterName) {
     ULONG bufferSize = 0;
-    GetAdaptersInfo(NULL, &bufferSize);
+    GetIfTable(NULL, &bufferSize, FALSE);
     std::vector<BYTE> buffer(bufferSize);
-    PIP_ADAPTER_INFO pAdapterInfo = (PIP_ADAPTER_INFO)buffer.data();
+    PMIB_IFTABLE pIfTable = (PMIB_IFTABLE)buffer.data();
 
-    if (GetAdaptersInfo(pAdapterInfo, &bufferSize) == ERROR_SUCCESS) {
-        for (PIP_ADAPTER_INFO pAdapter = pAdapterInfo; pAdapter; pAdapter = pAdapter->Next) {
-            size_t convertedChars = 0;
-            wchar_t wAdapterName[MAX_ADAPTER_NAME_LENGTH + 1];
-            mbstowcs_s(&convertedChars, wAdapterName, pAdapter->AdapterName, strlen(pAdapter->AdapterName) + 1);
-            std::wstring name(wAdapterName);
-
-            if (name == adapterName && pAdapter->Type != MIB_IF_TYPE_LOOPBACK) {
+    if (GetIfTable(pIfTable, &bufferSize, FALSE) == NO_ERROR) {
+        for (DWORD i = 0; i < pIfTable->dwNumEntries; i++) {
+            std::wstring name = std::wstring(pIfTable->table[i].wszName);
+            if (name == adapterName && pIfTable->table[i].dwOperStatus == IF_OPER_STATUS_OPERATIONAL) {
                 return true;
             }
         }
@@ -86,13 +91,13 @@ bool IsAdapterActive(const std::wstring& adapterName) {
 }
 
 DWORD SetAdapterToStaticIpViaRegistry(const std::wstring& adapterName, const std::wstring& ipAddress, const std::wstring& subnetMask, const std::wstring& gateway, const std::wstring& dns) {
-    HRESULT hr = CoInitialize(NULL);
+    HRESULT hr = CoInitialize(nullptr);
     if (FAILED(hr)) {
         LogMessage(L"CoInitialize failed: " + std::to_wstring(hr), L"service_error.log");
         return hr;
     }
 
-    IWbemLocator* pLoc = NULL;
+    IWbemLocator* pLoc = nullptr;
     hr = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
     if (FAILED(hr)) {
         CoUninitialize();
@@ -100,8 +105,8 @@ DWORD SetAdapterToStaticIpViaRegistry(const std::wstring& adapterName, const std
         return hr;
     }
 
-    IWbemServices* pSvc = NULL;
-    hr = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+    IWbemServices* pSvc = nullptr;
+    hr = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), nullptr, nullptr, 0, NULL, 0, 0, &pSvc);
     pLoc->Release();
     if (FAILED(hr)) {
         CoUninitialize();
@@ -109,7 +114,7 @@ DWORD SetAdapterToStaticIpViaRegistry(const std::wstring& adapterName, const std
         return hr;
     }
 
-    hr = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+    hr = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, nullptr, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE);
     if (FAILED(hr)) {
         pSvc->Release();
         CoUninitialize();
@@ -117,9 +122,9 @@ DWORD SetAdapterToStaticIpViaRegistry(const std::wstring& adapterName, const std
         return hr;
     }
 
-    IEnumWbemClassObject* pEnumerator = NULL;
+    IEnumWbemClassObject* pEnumerator = nullptr;
     std::wstring query = L"SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionID = '" + adapterName + L"'";
-    hr = pSvc->ExecQuery(_bstr_t(L"WQL"), _bstr_t(query.c_str()), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+    hr = pSvc->ExecQuery(_bstr_t(L"WQL"), _bstr_t(query.c_str()), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, nullptr, &pEnumerator);
     if (FAILED(hr)) {
         pSvc->Release();
         CoUninitialize();
@@ -127,7 +132,7 @@ DWORD SetAdapterToStaticIpViaRegistry(const std::wstring& adapterName, const std
         return hr;
     }
 
-    IWbemClassObject* pclsObj = NULL;
+    IWbemClassObject* pclsObj = nullptr;
     ULONG uReturn = 0;
     std::wstring adapterGuid;
     while (pEnumerator) {
@@ -155,7 +160,7 @@ DWORD SetAdapterToStaticIpViaRegistry(const std::wstring& adapterName, const std
     std::wstring regPath = L"SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + adapterGuid;
     HKEY hKey;
     DWORD disposition;
-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &disposition) != ERROR_SUCCESS) {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, nullptr, 0, KEY_ALL_ACCESS, nullptr, &hKey, &disposition) != ERROR_SUCCESS) {
         LogMessage(L"RegCreateKeyEx failed: " + std::to_wstring(GetLastError()), L"service_error.log");
         return GetLastError();
     }
@@ -176,13 +181,13 @@ DWORD SetAdapterToStaticIpViaRegistry(const std::wstring& adapterName, const std
 }
 
 DWORD SetAdapterToDhcpViaRegistry(const std::wstring& adapterName) {
-    HRESULT hr = CoInitialize(NULL);
+    HRESULT hr = CoInitialize(nullptr);
     if (FAILED(hr)) {
         LogMessage(L"CoInitialize failed: " + std::to_wstring(hr), L"service_error.log");
         return hr;
     }
 
-    IWbemLocator* pLoc = NULL;
+    IWbemLocator* pLoc = nullptr;
     hr = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
     if (FAILED(hr)) {
         CoUninitialize();
@@ -190,8 +195,8 @@ DWORD SetAdapterToDhcpViaRegistry(const std::wstring& adapterName) {
         return hr;
     }
 
-    IWbemServices* pSvc = NULL;
-    hr = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+    IWbemServices* pSvc = nullptr;
+    hr = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), nullptr, nullptr, 0, NULL, 0, 0, &pSvc);
     pLoc->Release();
     if (FAILED(hr)) {
         CoUninitialize();
@@ -199,7 +204,7 @@ DWORD SetAdapterToDhcpViaRegistry(const std::wstring& adapterName) {
         return hr;
     }
 
-    hr = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+    hr = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, nullptr, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE);
     if (FAILED(hr)) {
         pSvc->Release();
         CoUninitialize();
@@ -207,9 +212,9 @@ DWORD SetAdapterToDhcpViaRegistry(const std::wstring& adapterName) {
         return hr;
     }
 
-    IEnumWbemClassObject* pEnumerator = NULL;
+    IEnumWbemClassObject* pEnumerator = nullptr;
     std::wstring query = L"SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionID = '" + adapterName + L"'";
-    hr = pSvc->ExecQuery(_bstr_t(L"WQL"), _bstr_t(query.c_str()), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+    hr = pSvc->ExecQuery(_bstr_t(L"WQL"), _bstr_t(query.c_str()), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, nullptr, &pEnumerator);
     if (FAILED(hr)) {
         pSvc->Release();
         CoUninitialize();
@@ -217,7 +222,7 @@ DWORD SetAdapterToDhcpViaRegistry(const std::wstring& adapterName) {
         return hr;
     }
 
-    IWbemClassObject* pclsObj = NULL;
+    IWbemClassObject* pclsObj = nullptr;
     ULONG uReturn = 0;
     std::wstring adapterGuid;
     while (pEnumerator) {
@@ -261,6 +266,8 @@ DWORD SetAdapterToDhcpViaRegistry(const std::wstring& adapterName) {
 
     RegCloseKey(hKey);
     return ERROR_SUCCESS;
+
+
 }
 
 DWORD SetStaticIP(const std::wstring& presetData) {
@@ -296,17 +303,6 @@ DWORD SetStaticIP(const std::wstring& presetData) {
 
         result = RunNetshCommand(command, L"netsh_output_static.log");
         if (result != ERROR_SUCCESS) {
-            command = L"interface ip set address name=\"" + adapterName + L"\" source=static address=" + ipAddress + L" mask=" + subnetMask;
-            if (!gateway.empty()) {
-                command += L" gateway=" + gateway + L" gwmetric=1";
-            }
-            else {
-                command += L" gateway=none";
-            }
-            result = RunNetshCommand(command, L"netsh_output_static.log");
-        }
-
-        if (result != ERROR_SUCCESS) {
             LogMessage(L"netsh command failed for SetStaticIP", L"service_error.log");
             return result;
         }
@@ -314,11 +310,6 @@ DWORD SetStaticIP(const std::wstring& presetData) {
         if (!dns.empty()) {
             command = L"interface ipv4 set dns name=\"" + adapterName + L"\" source=static address=" + dns;
             result = RunNetshCommand(command, L"netsh_output_static.log");
-            if (result != ERROR_SUCCESS) {
-                command = L"interface ip set dns name=\"" + adapterName + L"\" source=static address=" + dns;
-                result = RunNetshCommand(command, L"netsh_output_static.log");
-            }
-
             if (result != ERROR_SUCCESS) {
                 LogMessage(L"netsh command failed for DNS in SetStaticIP", L"service_error.log");
                 return result;
@@ -331,6 +322,7 @@ DWORD SetStaticIP(const std::wstring& presetData) {
             LogMessage(L"SetAdapterToStaticIpViaRegistry failed", L"service_error.log");
             return result;
         }
+        ResetAdapter(adapterName);
     }
 
     return ERROR_SUCCESS;
@@ -344,17 +336,15 @@ DWORD ResetToDhcp(const std::wstring& adapterName) {
         std::wstring command = L"interface ipv4 set address name=\"" + adapterName + L"\" source=dhcp";
         result = RunNetshCommand(command, L"netsh_output_dhcp.log");
         if (result != ERROR_SUCCESS) {
-            result = SetAdapterToDhcpViaRegistry(adapterName);
-            if (result != ERROR_SUCCESS) {
-                LogMessage(L"SetAdapterToDhcpViaRegistry failed after netsh failure", L"service_error.log");
-                return result;
-            }
+            LogMessage(L"netsh command failed for ResetToDhcp", L"service_error.log");
+            return result;
         }
 
         command = L"interface ipv4 set dns name=\"" + adapterName + L"\" source=dhcp";
         result = RunNetshCommand(command, L"netsh_output_dhcp.log");
         if (result != ERROR_SUCCESS) {
-            // If netsh fails, DNS settings are already handled by SetAdapterToDhcpViaRegistry
+            LogMessage(L"netsh command failed for DNS in ResetToDhcp", L"service_error.log");
+            return result;
         }
     }
     else {
@@ -363,6 +353,7 @@ DWORD ResetToDhcp(const std::wstring& adapterName) {
             LogMessage(L"SetAdapterToDhcpViaRegistry failed", L"service_error.log");
             return result;
         }
+        ResetAdapter(adapterName);
     }
 
     return ERROR_SUCCESS;

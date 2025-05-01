@@ -8,8 +8,8 @@
 
 // Function to install the service
 bool InstallService(const std::wstring& serviceBinaryPath) {
-    SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (schSCManager == NULL) {
+    SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+    if (schSCManager == nullptr) {
         std::wcerr << L"OpenSCManager failed: " << GetLastError() << std::endl;
         return false;
     }
@@ -24,14 +24,14 @@ bool InstallService(const std::wstring& serviceBinaryPath) {
         SERVICE_AUTO_START,         // Start type (automatic)
         SERVICE_ERROR_NORMAL,       // Error control
         serviceBinaryPath.c_str(),  // Path to the service binary
-        NULL,                       // No load ordering group
-        NULL,                       // No tag identifier
-        NULL,                       // No dependencies
-        NULL,                       // Local System account
-        NULL                        // No password (for Local System)
+        nullptr,                       // No load ordering group
+        nullptr,                       // No tag identifier
+        nullptr,                       // No dependencies
+        nullptr,                       // Local System account
+        nullptr                        // No password (for Local System)
     );
 
-    if (schService == NULL) {
+    if (schService == nullptr) {
         std::wcerr << L"CreateService failed: " << GetLastError() << std::endl;
         CloseServiceHandle(schSCManager);
         return false;
@@ -48,7 +48,7 @@ bool InstallService(const std::wstring& serviceBinaryPath) {
     std::wcout << L"Service installed successfully." << std::endl;
 
     // Start the service
-    if (!StartService(schService, 0, NULL)) {
+    if (!StartService(schService, 0, nullptr)) {
         std::wcerr << L"StartService failed: " << GetLastError() << std::endl;
         // Not fatal, user can start it manually
     }
@@ -63,14 +63,14 @@ bool InstallService(const std::wstring& serviceBinaryPath) {
 
 // Function to uninstall the service
 bool UninstallService() {
-    SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (schSCManager == NULL) {
+    SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+    if (schSCManager == nullptr) {
         std::wcerr << L"OpenSCManager failed: " << GetLastError() << std::endl;
         return false;
     }
 
     SC_HANDLE schService = OpenService(schSCManager, SERVICE_NAME, SERVICE_ALL_ACCESS);
-    if (schService == NULL) {
+    if (schService == nullptr) {
         std::wcerr << L"OpenService failed: " << GetLastError() << std::endl;
         CloseServiceHandle(schSCManager);
         return false;
