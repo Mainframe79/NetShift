@@ -92,7 +92,7 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
                     response = L"Unknown command";
                 }
 
-                WriteFile(hPipe, response.c_str(), (response.length() + 1) * sizeof(wchar_t), nullptr, nullptr);
+                WriteFile(hPipe, response.c_str(), static_cast<DWORD>((response.length() + 1) * sizeof(wchar_t)), nullptr, nullptr);
             }
         }
         DisconnectNamedPipe(hPipe);

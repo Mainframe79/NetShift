@@ -18,13 +18,7 @@ DWORD SafeSizeToDword(size_t size) {
     return static_cast<DWORD>(size);
 }
 
-void ResetAdapter(const std::wstring& adapterName) {
-    std::wstring disableCommand = L"interface set interface name=\"" + adapterName + L"\" admin=disable";
-    RunNetshCommand(disableCommand, L"netsh_reset.log");
 
-    std::wstring enableCommand = L"interface set interface name=\"" + adapterName + L"\" admin=enable";
-    RunNetshCommand(enableCommand, L"netsh_reset.log");
-}
 
 
 DWORD RunNetshCommand(const std::wstring& command, const std::wstring& logFile) {
@@ -71,6 +65,14 @@ DWORD RunNetshCommand(const std::wstring& command, const std::wstring& logFile) 
     CloseHandle(pi.hThread);
 
     return exitCode;
+}
+
+void ResetAdapter(const std::wstring& adapterName) {
+    std::wstring disableCommand = L"interface set interface name=\"" + adapterName + L"\" admin=disable";
+    RunNetshCommand(disableCommand, L"netsh_reset.log");
+
+    std::wstring enableCommand = L"interface set interface name=\"" + adapterName + L"\" admin=enable";
+    RunNetshCommand(enableCommand, L"netsh_reset.log");
 }
 
 bool IsAdapterActive(const std::wstring& adapterName) {
