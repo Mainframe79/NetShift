@@ -24,8 +24,8 @@ Source: "..\NetShiftServiceInstaller\x64\Release\NetShiftServiceInstaller.exe"; 
 Source: "..\..\NetShiftIcon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{autoprograms}\NetShift"; Filename: "{app}\NetShiftMain.exe"; IconFilename: "{app}\NetShiftIcon.ico"; WorkingDir: "{app}"
-Name: "{autodesktop}\NetShift"; Filename: "{app}\NetShiftMain.exe"; IconFilename: "{app}\NetShiftIcon.ico"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autoprograms}\NetShift"; Filename: "{app}\net8.0-windows\NetShiftMain.exe"; IconFilename: "{app}\NetShiftIcon.ico"; WorkingDir: "{app}"
+Name: "{autodesktop}\NetShift"; Filename: "{app}\net8.0-windows\NetShiftMain.exe"; IconFilename: "{app}\NetShiftIcon.ico"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
