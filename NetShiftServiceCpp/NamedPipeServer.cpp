@@ -76,8 +76,8 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
                 else if (command == L"ResetToDhcp") {
                     DWORD result = ResetToDhcp(params);
                     if (result != ERROR_SUCCESS) {
-                        response = L"Error: " + std::to_wstring(result);
                         response = L"ResetToDhcp: Success";
+                        response = L"Error: " + std::to_wstring(result);
                     }
                     else {
                         LogMessage(L"ResetToDhcp failed with error: " + std::to_wstring(result), L"service_error.log");
