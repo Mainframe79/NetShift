@@ -1,0 +1,89 @@
+name: Build Test Installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+env:
+  SIGN_CODE: false
+  BASE_DIR: D:\a\NetShift\NetShift
+  ARTIFACTS_DIR: D:\a\NetShift\NetShift\artifacts
+  TEMP_DIR: D:\a\NetShift\NetShift\artifacts\temp
+  SolutionPath: D:\a\NetShift\NetShift\NetShift.sln
+  SetupPath: D:\a\NetShift\NetShift\NetShiftSetup
+  NetShiftBin: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows
+  NetShiftExe: D:\a\NetShift\NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShiftMain.exe
+  NetShiftServiceCppBin: D:\a\NetShift\NetShift\NetShiftServiceCpp\x64\Release
+  NetShiftServiceCppExe: D:\a\NetShift\NetShift\NetShiftServiceCpp\x64\Release\NetShiftServiceCpp.exe
+  NetShiftServiceInstallerBin: D:\a\NetShift\NetShift\NetShiftServiceInstaller\x64\Release
+  NetShiftServiceInstallerExe: D:\a\NetShift\NetShift\NetShiftServiceInstaller\x64\Release\NetShiftServiceInstaller.exe
+  NetShiftInstallerExe: D:\a\NetShift\NetShift\artifacts\NetShiftInstaller.exe
+  RCEDIT_PATH: D:\a\NetShift\NetShift\tools\rcedit\rcedit-x64.exe
+
+jobs:
+  test-build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: .
+
+      - name: Set default version for test build
+        run: echo "APP_VERSION=0.0.0-dev" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: powershell
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Create artifacts and temp directories
+        run: |
+          New-Item -ItemType Directory -Force -Path "${{ env.ARTIFACTS_DIR }}"
+          New-Item -ItemType Directory -Force -Path "${{ env.TEMP_DIR }}"
+        shell: powershell
+
+      - name: Restore NuGet packages
+        run: msbuild "${{ env.SolutionPath }}" -t:Restore -p:Configuration=Release -p:Platform=x64
+        shell: powershell
+
+      - name: Build all projects
+        run: |
+          msbuild NetShift\NetShiftMain\NetShiftMain.csproj /p:Configuration=Release /p:Platform=x64
+          msbuild NetShift\NetShiftServiceCpp\NetShiftServiceCpp.vcxproj /p:Configuration=Release /p:Platform=x64
+          msbuild NetShift\NetShiftServiceInstaller\NetShiftServiceInstaller.vcxproj /p:Configuration=Release /p:Platform=x64
+        working-directory: D:\a\NetShift
+        shell: powershell
+
+      - name: Download and Install Inno Setup
+        run: |
+          Invoke-WebRequest -Uri https://jrsoftware.org/download.php/is.exe -OutFile inno-setup-installer.exe
+          Start-Process -FilePath .\inno-setup-installer.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" -Wait
+        shell: powershell
+        working-directory: D:\a\NetShift
+
+      - name: Copy NetShiftIcon.ico to working directory
+        run: Copy-Item "NetShift\NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\Assets\NetShiftIcon.ico" -Destination "NetShiftIcon.ico"
+        shell: powershell
+        working-directory: D:\a\NetShift
+
+      - name: Build Inno Setup Installer
+        run: |
+          $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
+          ISCC.exe "${{ env.SetupPath }}\setup.iss" /DMyAppVersion="${{ env.APP_VERSION }}" > "${{ env.ARTIFACTS_DIR }}\iscc.log" 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Get-Content "${{ env.ARTIFACTS_DIR }}\iscc.log"
+            exit $LASTEXITCODE
+          }
+        shell: powershell
+        working-directory: D:\a\NetShift
+
+      - name: Upload Test Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetShift-TestInstaller
+          path: ${{ env.NetShiftInstallerExe }}
+          retention-days: 3
