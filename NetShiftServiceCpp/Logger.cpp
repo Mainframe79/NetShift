@@ -1,36 +1,26 @@
-﻿#include "Logger.h"
+#include "Logger.h"
 #include <windows.h>
 #include <fstream>
-#include <filesystem>
-#include <format>
-
-namespace fs = std::filesystem;
+#include <sstream>
+#include <ctime>
 
 void LogMessage(const std::wstring& message, const std::wstring& fileName) {
-    // Ensure log directory exists
-    fs::create_directories(LOG_DIR);
+    CreateDirectory(LOG_DIR.c_str(), NULL);
 
-    // Construct full log file path
-    std::wstring logPath = LOG_DIR + L"\\" + fileName;
+    std::wofstream logFile(LOG_DIR + L"\\" + fileName, std::ios::app);
+    if (!logFile.is_open())
+        return;
 
-    // Open file for appending
-    std::wofstream logFile(logPath, std::ios::app);
-    if (!logFile.is_open()) return;
+    // Add timestamp
+    std::wstringstream timestamped;
+    std::time_t now = std::time(nullptr);
+    struct tm localTime;
+    localtime_s(&localTime, &now);
 
-    // Get current time
-    SYSTEMTIME st;
-    GetLocalTime(&st);
+    wchar_t buffer[64];
+    wcsftime(buffer, sizeof(buffer) / sizeof(wchar_t), L"[%Y-%m-%d %H:%M:%S] ", &localTime);
+    timestamped << buffer << message;
 
-    // Format timestamp
-    std::wstring timestamp = std::format(
-        L"[{:04}-{:02}-{:02} {:02}:{:02}:{:02}] ",
-        st.wYear, st.wMonth, st.wDay,
-        st.wHour, st.wMinute, st.wSecond
-    );
-
-    // Write log entry
-    logFile << timestamp << message;
-    if (!message.empty() && message.back() != L'\n') {
-        logFile << L"\n";
-    }
+    logFile << timestamped.str() << L"\n";
+    logFile.close();
 }

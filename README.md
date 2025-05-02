@@ -1,3 +1,4 @@
+
 # NetShift
 
 ![Build](https://img.shields.io/github/actions/workflow/status/Mainframe79/NetShift/deploy.yml?event=push)
@@ -20,7 +21,7 @@ The app is designed to be **user-friendly**, **secure**, and **efficient**, mini
 - **Network Adapter Detection**: Lists physical adapters (excludes Bluetooth adapters).
 - **Registry Fallback**: Preconfigure IP settings when adapters are disconnected.
 - **Service-Based Architecture**: A LocalSystem Windows service (NetShiftServiceCpp) handles privileged operations, installed via NetShiftServiceInstaller.
-- **Installer**: Self-contained installer built with Inno Setup. Automatically installs the NetShift service.
+- **Installer**: Self-contained installer with .NET 8 Desktop Runtime handling.
 
 ---
 
@@ -31,8 +32,8 @@ The app is designed to be **user-friendly**, **secure**, and **efficient**, mini
 | **Service runs as LocalSystem** | Local-only named pipe, input validation, and code signing. |
 | **Code signing** | All binaries are signed via SSL.com cloud signing to preserve trust. |
 | **User privilege model** | Main app runs standard user level (`asInvoker`), no UAC prompt. |
-| **Log files** | Logs are stored under user-local AppData and ProgramData, access-controlled. |
-| **Local network communication** | Uses named pipes, locked to localhost only. |
+| **Log files** | Logs are stored under user-local AppData, access-controlled. |
+| **Local network communication** | WCF NetNamedPipeBinding used, locked to localhost only. |
 
 ---
 
@@ -48,16 +49,10 @@ The app is designed to be **user-friendly**, **secure**, and **efficient**, mini
 3. Follow the installer prompts.
 
 ### Silent Install
-For automated deployments (e.g. PDQ Deploy):
+For automated deployments:
 
 ```bash
 NetShiftInstaller.exe /silent
-```
-
-### Silent Uninstall
-
-```bash
-NetShiftInstaller.exe /uninstall /verysilent /suppressmsgboxes /norestart
 ```
 
 ---
@@ -98,24 +93,31 @@ cd NetShift
 ```
 
 2. **Install Prerequisites**:
-- Visual Studio with the following workloads:
-  - .NET desktop development
-  - Desktop development with C++
+- Visual Studio with .NET desktop workload
+- .NET desktop development workload (for NetShiftMain and NetShift.Models).
+- Desktop development with C++ workload (for NetShiftServiceCpp and NetShiftServiceInstaller).
 
 3. **Build Projects:**
-- Open `NetShift.sln` in Visual Studio.
-- Build in `Release|x64` configuration:
-  - NetShiftMain (C# WPF app)
-  - NetShiftServiceCpp (C++ service)
-  - NetShiftServiceInstaller (C++ installer helper)
+- Open NetShift.sln in Visual Studio.
+- Build the solution in Release|x64 configuration:
+- - NetShiftMain (C# WPF app).
+- - NetShiftServiceCpp (C++ service).
+- - NetShiftServiceInstaller (C++ installer helper).
 
-4. **Build the Installer:**
+- The build outputs will be in:
+- - NetShiftMain\bin\x64\Release\net8.0-windows\net8.0-windows\NetShiftMain.exe
+- - NetShiftServiceCpp\x64\Release\NetShiftServiceCpp.exe
+- - NetShiftServiceInstaller\x64\Release\NetShiftServiceInstaller.exe
+
+**Build the Installer:**
+Navigate to NetShiftSetup and run the Inno Setup compiler (ISCC.exe) on setup.iss:
 ```bash
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" NetShiftSetup\setup.iss /DMyAppVersion="1.0.0"
 ```
-The installer will be output to the `artifacts` directory.
+The installer (NetShiftInstaller.exe) will be generated in the artifacts directory.
 
-5. **Test Installer**:
+4. **Test Installer**:
+
 ```bash
 copy NetShift\artifacts\NetShiftInstaller.exe C:\Temp\
 cd C:\Temp
@@ -148,7 +150,7 @@ User --> NetShiftMain.exe (runs as Standard User)
 
 - The user interacts with a normal UI without needing elevation.
 - All privileged operations (IP reconfiguration, registry edits) happen securely through the service.
-- The service is isolated, only accessible locally, and installed via `NetShiftServiceInstaller.exe`.
+- The service is isolated, only accessible locally, and installed via NetShiftServiceInstaller.exe.
 
 ---
 
