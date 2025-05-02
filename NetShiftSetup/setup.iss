@@ -16,7 +16,6 @@ AppSupportURL=https://zentrixlabs.com/support
 AppUpdatesURL=https://zentrixlabs.com/updates
 SetupLogging=yes
 ArchitecturesInstallIn64BitMode=x64
-UninstallLogMode=append
 
 [Files]
 Source: "..\NetShiftMain\bin\x64\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Excludes: "*.resources.dll"
@@ -32,7 +31,7 @@ Name: "{autodesktop}\NetShift"; Filename: "{app}\net8.0-windows\NetShiftMain.exe
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Run]
-Filename: "{app}\NetShiftServiceInstaller.exe"; Parameters: "--install \"{app}\NetShiftServiceCpp.exe\""; Flags: runhidden waituntilterminated; Description: "Install NetShift Service"
+Filename: "{app}\NetShiftServiceInstaller.exe"; Parameters: "--install ""{app}\NetShiftServiceCpp.exe"""; Flags: runhidden waituntilterminated; Description: "Install NetShift Service"
 
 [UninstallRun]
 Filename: "{app}\NetShiftServiceInstaller.exe"; Parameters: "--uninstall"; Flags: runhidden waituntilterminated
@@ -46,6 +45,7 @@ var
   I: Integer;
 begin
   Result := False;
+  // Check 64-bit uninstall hive
   if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', SubKeyNames) then
   begin
     for I := 0 to GetArrayLength(SubKeyNames) - 1 do
@@ -61,6 +61,7 @@ begin
       end;
     end;
   end;
+  // Check 32-bit uninstall hive (WOW6432Node) on 64-bit systems
   if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall', SubKeyNames) then
   begin
     for I := 0 to GetArrayLength(SubKeyNames) - 1 do
@@ -91,26 +92,8 @@ begin
       WizardForm.Close;
     end else
     begin
+      // In silent mode, fail the installation
       WizardForm.Close;
     end;
-  end;
-end;
-
-procedure DeinitializeUninstall();
-var
-  ProgramDataPath: string;
-begin
-  Log('Performing final cleanup...');
-
-  if GetEnv('ProgramData') <> '' then
-  begin
-    ProgramDataPath := ExpandConstant('{pf64}') + '\ZentrixLabs\NetShift';
-    DelTree(ProgramDataPath, True, True, True);
-    Log('Deleted: ' + ProgramDataPath);
-  end;
-
-  if not WizardSilent then
-  begin
-    MsgBox('NetShift has been completely uninstalled.', mbInformation, MB_OK);
   end;
 end;
