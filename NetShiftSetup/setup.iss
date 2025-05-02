@@ -34,7 +34,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Filename: "{app}\NetShiftServiceInstaller.exe"; Parameters: "--install ""{app}\NetShiftServiceCpp.exe"""; Flags: runhidden waituntilterminated; Description: "Install NetShift Service"
 
 [UninstallRun]
-Filename: "{app}\NetShiftServiceInstaller.exe"; Parameters: "--uninstall"; Flags: runhidden waituntilterminated
+Filename: "{cmd}"; Parameters: "/C \"{app}\NetShiftServiceInstaller.exe --uninstall && timeout /t 2 > nul\""; Flags: runhidden runascurrentuser; RunOnceId: NetShiftServiceCleanup
 
 [Code]
 function IsDotNet8Installed: Boolean;

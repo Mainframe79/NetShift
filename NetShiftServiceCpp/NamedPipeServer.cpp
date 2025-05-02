@@ -65,25 +65,28 @@ DWORD WINAPI PipeServerThread(LPVOID lpParam) {
                 if (command == L"SetStaticIP") {
                     DWORD result = SetStaticIP(params);
                     if (result == ERROR_SUCCESS) {
-                        LogMessage(L"SetStaticIP successfully applied for parameters: " + params, L"service_log.log");
                         response = L"SetStaticIP: Success";
+                        LogMessage(L"SetStaticIP successfully applied for parameters: " + params, L"service_log.log");
+
                     }
                     else {
-                        LogMessage(L"SetStaticIP failed with error: " + std::to_wstring(result), L"service_error.log");
                         response = L"SetStaticIP: Error " + std::to_wstring(result);
+                        LogMessage(L"SetStaticIP failed with error: " + std::to_wstring(result), L"service_error.log");
+
                     }
                 }
                 else if (command == L"ResetToDhcp") {
                     DWORD result = ResetToDhcp(params);
-                    if (result != ERROR_SUCCESS) {
+                    if (result == ERROR_SUCCESS) {
                         response = L"ResetToDhcp: Success";
-                        response = L"Error: " + std::to_wstring(result);
+                        LogMessage(L"ResetToDhcp successfully applied for adapter: " + params, L"service_log.log");
                     }
                     else {
-                        LogMessage(L"ResetToDhcp failed with error: " + std::to_wstring(result), L"service_error.log");
                         response = L"ResetToDhcp: Error " + std::to_wstring(result);
+                        LogMessage(L"ResetToDhcp failed with error: " + std::to_wstring(result), L"service_error.log");
                     }
                 }
+
                 else if (command == L"Shutdown") {
                     running = false;
                     response = L"Server shutting down";
