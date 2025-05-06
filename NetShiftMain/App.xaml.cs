@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using System.Net;
 using System.Windows;
 
 namespace NetShift
@@ -9,6 +8,14 @@ namespace NetShift
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            // Allow TLS 1.2 and 1.3 (if supported by OS)
+            ServicePointManager.SecurityProtocol =
+                SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+
+            base.OnStartup(e);
+        }
     }
 
 }
