@@ -7,7 +7,7 @@
 ![Last Commit](https://img.shields.io/github/last-commit/Mainframe79/NetShift)
 
 ## Download
-The latest release of NetShift is available on the [Releases page](https://github.com/LazerPanth3r/NetShift/releases).  
+The latest release of NetShift is available on the [Releases page](https://github.com/ZentrixLabs/NetShift/releases).  
 Download the `NetShiftInstaller.exe` file directly from GitHub Releases and run it as Administrator to install.
 
 ## Overview
