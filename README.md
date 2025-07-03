@@ -1,10 +1,10 @@
 
 # NetShift
 
-![Build](https://img.shields.io/github/actions/workflow/status/Mainframe79/NetShift/deploy.yml?event=push)
-![Release](https://img.shields.io/github/v/release/Mainframe79/NetShift)
-![License](https://img.shields.io/github/license/Mainframe79/NetShift)
-![Last Commit](https://img.shields.io/github/last-commit/Mainframe79/NetShift)
+![Build](https://img.shields.io/github/actions/workflow/status/ZentrixLabs/NetShift/deploy.yml?event=push)
+![Release](https://img.shields.io/github/v/release/ZentrixLabs/NetShift)
+![License](https://img.shields.io/github/license/ZentrixLabs/NetShift)
+![Last Commit](https://img.shields.io/github/last-commit/ZentrixLabs/NetShift)
 
 ## Download
 The latest release of NetShift is available on the [Releases page](https://github.com/ZentrixLabs/NetShift/releases).  
@@ -44,7 +44,7 @@ The app is designed to be **user-friendly**, **secure**, and **efficient**, mini
 - .NET 8 Desktop Runtime.
 
 ### Steps to Install
-1. Download the latest `NetShiftInstaller.exe` from the [Releases](https://github.com/LazerPanth3r/NetShift-Public/releases) page.
+1. Download the latest `NetShiftInstaller.exe` from the [Releases](https://github.com/ZentrixLabs/NetShift/releases) page.
 2. Run `NetShiftInstaller.exe` as Administrator.
 3. Follow the installer prompts.
 
